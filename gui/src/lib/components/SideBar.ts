@@ -8,6 +8,36 @@ export const SidebarItems: (MenuItem | Category)[] = [
         icon: 'tabler:home'
     },
     {
+        name: 'Métodos numéricos',
+        items: [
+            {
+                name: 'Notación posicional',
+                href: '/#notacion',
+                icon: 'mdi:calculator-variant'
+            },
+            {
+                name: 'Errores numéricos',
+                href: '/#errores',
+                icon: 'mdi:alert-decagram'
+            },
+            {
+                name: 'Punto flotante',
+                href: '/#punto-flotante',
+                icon: 'mdi:decimal'
+            },
+            {
+                name: 'Taller guiado',
+                href: '/#taller-guiado',
+                icon: 'mdi:lighthouse'
+            },
+            {
+                name: 'Ejercicio principal',
+                href: '/#ejercicio-principal',
+                icon: 'mdi:chart-line-variant'
+            }
+        ]
+    },
+    {
         name: 'Matrices',
         items: [
             {
@@ -99,7 +129,7 @@ export const SidebarItems: (MenuItem | Category)[] = [
     },
     {
         name: 'Configuración',
-        href: '#',
+        href: '/configuracion',
         icon: 'tabler:settings'
     }
 ];
