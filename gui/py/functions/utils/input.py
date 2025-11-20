@@ -1,11 +1,11 @@
 from py.functions.models.vector import Vector
 from py.functions.models.matriz import Matriz
-from py.functions.utils.auxiliar import a_fraccion
+from .latparser import eval_latex
 from fractions import Fraction
 
 
 def fraction_make(input: str) -> Fraction:
-    return a_fraccion(input)
+    return eval_latex(input)
 
 
 def matrix_make(input: list[list[str]]) -> Matriz:

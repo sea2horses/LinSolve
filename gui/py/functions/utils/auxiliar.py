@@ -13,7 +13,10 @@ def a_fraccion(x: str) -> Fraction:
     Convierte un número (decimal o fracción en string) a Fraction exacta.
     """
     try:
-        raise NotImplemented
+        if '/' in str(x):
+            return Fraction(x)
+        else:
+            return Fraction(str(x))
     except Exception as e:
         raise ValueError(f"Entrada inválida: {x}") from e
 
