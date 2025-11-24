@@ -1,11 +1,14 @@
-from py.functions.models.vector import Vector
-from py.functions.models.matriz import Matriz
-from .latparser import eval_latex
-from fractions import Fraction
+from ..models.matriz import Matriz
+from .latparser import eval_latex, Operand
+
+import sympy
 
 
-def fraction_make(input: str) -> Fraction:
-    return eval_latex(input)
+def fraction_make(input: str) -> sympy.Expr:
+    res: Operand = eval_latex(input, None)
+    if not isinstance(res, sympy.Expr):
+        raise Exception("Entrada invalida")
+    return res
 
 
 def matrix_make(input: list[list[str]]) -> Matriz:

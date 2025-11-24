@@ -12,7 +12,7 @@
 
 	// Keep `value` as a Columns x Headers.length 2D array.
 	// Preserve existing values when possible and fill missing cells with empty strings.
-	$effect(() => {
+	const ensuereShape = () => {
 		if (!Array.isArray(value)) value = [];
 
 		// Ensure correct number of rows
@@ -25,9 +25,14 @@
 			if (!Array.isArray(value[i])) value[i] = [];
 
 			while (value[i].length < cols) value[i].push('');
-
 			if (value[i].length > cols) value[i].length = cols;
 		}
+	};
+
+	ensuereShape();
+
+	$effect.pre(() => {
+		ensuereShape();
 	});
 </script>
 
@@ -63,7 +68,7 @@
 	</table>
 </div>
 
-<style>
+<!-- <style>
 	/* Fixed table layout so columns keep stable widths */
 	table.table {
 		table-layout: fixed;
@@ -84,4 +89,4 @@
 		max-width: 100%;
 		box-sizing: border-box;
 	}
-</style>
+</style> -->

@@ -1,11 +1,13 @@
-from py.functions.models.matriz import Matriz
-from py.functions.models.vector import Vector
+from ..models.matriz import Matriz
+from ..models.vector import Vector
 from fractions import Fraction
 
-import py.functions.operations.operaciones as op
-from py.functions.operations.operaciones import funnel
-import py.functions.utils.latex as latex
-from py.functions.utils.auxiliar import a_fraccion
+from ..operations import operaciones as op
+from ..operations.operaciones import funnel
+from ..utils import latex as latex
+from ..utils.auxiliar import sympy_expr
+
+import sympy
 
 # Clases auxiliares simples
 
@@ -15,7 +17,7 @@ class Posicion:
         self.fila = fila
         self.columna = columna
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"({self.fila}, {self.columna})"
 
 
@@ -23,24 +25,24 @@ class Posicion:
 __pasos__ = 0
 
 
-def resetear_pasos():
+def resetear_pasos() -> None:
     global __pasos__
     __pasos__ = 0
 
 
-def imprimir_paso(texto_paso: str, mat: Matriz | None = None):
+def imprimir_paso(texto_paso: str, mat: Matriz | None = None) -> None:
     global __pasos__
     __pasos__ += 1
     funnel(latex.text(f"Paso #{__pasos__}: {texto_paso}"))
 
 
-def paso():
+def paso() -> None:
     global __pasos__
     __pasos__ += 1
     funnel(latex.text(f"Paso #{__pasos__}"), latex.newline())
 
 
-def matriz_escalonada_reducida(mat: Matriz, filas: int, columnas: int):
+def matriz_escalonada_reducida(mat: Matriz, filas: int, columnas: int) -> None:
     fila_pivote = 0
     columna_pivote = 0
 
@@ -51,7 +53,7 @@ def matriz_escalonada_reducida(mat: Matriz, filas: int, columnas: int):
         fila_pivote += 1
         columna_pivote += 1
 
-        pivote: Fraction = Fraction(0)
+        pivote: sympy.Expr = sympy_expr(0)
 
         while pivote == 0 and columna_pivote <= columnas:
             pivote = mat.at(fila_pivote, columna_pivote)
@@ -82,21 +84,21 @@ def matriz_escalonada_reducida(mat: Matriz, filas: int, columnas: int):
         if pivote != 1:
             imprimir_paso(
                 f"Normalizar fila: ")
-            op.escalar_fila(mat, fila_pivote, Fraction(1) / pivote)
+            op.escalar_fila(mat, fila_pivote, sympy_expr(1) / pivote)
             funnel(latex.newline(), latex.matrix(mat), latex.newline())
 
         for i in range(fila_pivote + 1, filas + 1):
-            factor: Fraction = mat.at(i, columna_pivote)
+            factor: sympy.Expr = mat.at(i, columna_pivote)
             if factor == 0:
                 continue
 
             imprimir_paso(
                 f"Resta compuesta: ")
-            op.restar_escalar_fila(mat, Fraction(1), i, factor, fila_pivote)
+            op.restar_escalar_fila(mat, sympy_expr(1), i, factor, fila_pivote)
             funnel(latex.newline(), latex.matrix(mat), latex.newline())
 
         for i in range(1, fila_pivote):
-            factor: Fraction = mat.at(i, columna_pivote)
+            factor = mat.at(i, columna_pivote)
             if factor == 0:
                 continue
             imprimir_paso(
@@ -105,7 +107,7 @@ def matriz_escalonada_reducida(mat: Matriz, filas: int, columnas: int):
             funnel(latex.newline(), latex.matrix(mat), latex.newline())
 
 
-def obtener_pivotes(mat: Matriz, filas: int, columnas: int):
+def obtener_pivotes(mat: Matriz, filas: int, columnas: int) -> list[Posicion]:
     pivotes: list[Posicion] = []
     fila_actual = 1
 
@@ -125,7 +127,7 @@ def obtener_pivotes(mat: Matriz, filas: int, columnas: int):
     return pivotes
 
 
-def matriz_identidad(mat: Matriz, filas: int, columnas: int):
+def matriz_identidad(mat: Matriz, filas: int, columnas: int) -> None:
     fila_actual = 1
 
     funnel(latex.text("Reduciendo matriz a identidad..."), latex.newline())
@@ -152,7 +154,7 @@ def matriz_identidad(mat: Matriz, filas: int, columnas: int):
             return
 
 
-def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
+def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int) -> None:
     """
     Resuelve un sistema de ecuaciones lineales (AX=B o AX=0)
     """
@@ -175,7 +177,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
     tipo_sistema = "homogéneo" if es_homogeneo else "no homogéneo"
 
     mat.linea = incognitas
-    
+
     funnel(latex.text(f"Iniciando resolución del sistema {tipo_sistema}."))
 
     funnel(latex.newline(), latex.matrix(mat), latex.newline())
@@ -246,7 +248,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
         for i in range(1, incognitas + 1):
             x_val = mat.at(i, columna_resultados)
             funnel("x", latex.subscript(str(i)),
-                   " = ", latex.fraction(x_val), latex.newline())
+                   " = ", latex.number_parse(x_val), latex.newline())
     else:
         funnel(latex.text("El sistema tiene infinitas soluciones (forma paramétrica):"),
                latex.newline(), latex.newline())
@@ -255,8 +257,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
             if fila_variable is None:
                 funnel("x", latex.subscript(
                     str(i + 1)),
-                    latex.text(" es libre")
-                    , latex.newline())
+                    latex.text(" es libre"), latex.newline())
             else:
                 resultado = mat.at(fila_variable, columna_resultados)
                 eq_parts = []
@@ -264,7 +265,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
 
                 primer_termino = True
                 if resultado != 0:
-                    eq_parts.append(latex.fraction(resultado))
+                    eq_parts.append(latex.number_parse(resultado))
                     primer_termino = False
 
                 for columna in range(1, incognitas + 1):
@@ -280,7 +281,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
                         if abs(coeficiente) == 1:
                             coef_str = "" if coeficiente == 1 else "-"
                         else:
-                            coef_str = latex.fraction(coeficiente)
+                            coef_str = latex.number_parse(coeficiente)
                         eq_parts.append(coef_str + "x" +
                                         latex.subscript(str(columna)))
 
@@ -289,7 +290,7 @@ def resolver_sistema(mat: Matriz, ecuaciones: int, incognitas: int):
     funnel(latex.text("Clasificación: Consistente."), latex.newline())
 
 
-def calcular_inversa(mat: Matriz, tamaño: int):
+def calcular_inversa(mat: Matriz, tamaño: int) -> None:
     if mat.filas != tamaño or mat.columnas != tamaño:
         funnel(latex.text("La matriz debe ser cuadrada!"), latex.newline())
         return
@@ -376,7 +377,7 @@ def calcular_inversa(mat: Matriz, tamaño: int):
                latex.matrix(parte_izquierda), latex.newline())
 
 
-def combinacion_lineal(dimension: int, vectores: list[Vector], resultado: Vector):
+def combinacion_lineal(dimension: int, vectores: list[Vector], resultado: Vector) -> None:
     incognitas = len(vectores)
     ecuaciones = dimension
 
@@ -417,7 +418,7 @@ def combinacion_lineal(dimension: int, vectores: list[Vector], resultado: Vector
     funnel("".join(eq_parts), latex.newline())
 
 
-def resolver_ecuacion_matricial(A: Matriz, B: Matriz):
+def resolver_ecuacion_matricial(A: Matriz, B: Matriz) -> Matriz:
     """
     Resuelve la ecuación matricial AX = B
     """

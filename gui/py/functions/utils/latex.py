@@ -1,29 +1,41 @@
-from py.functions.models.matriz import Matriz
-from py.functions.models.vector import Vector
+from ..models.matriz import Matriz
+from ..models.vector import Vector
+from ..models.number import Number
+from .auxiliar import sympy_expr
 from fractions import Fraction
 import re
+import sympy
 
 
 class LatexBuffer():
     stdout = ""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def clear(self):
+    def clear(self) -> None:
         self.stdout = ""
 
-    def write(self, msg):
+    def write(self, msg: str) -> None:
         self.stdout += text(msg)
 
-    def writeln(self, msg):
+    def writeln(self, msg: str) -> None:
         self.stdout += text(msg) + newline()
 
-    def writelatex(self, latex):
+    def writelatex(self, latex: str) -> None:
         self.stdout += latex
 
 
 LATEX_STDOUT = LatexBuffer()
+
+
+def number_parse(n: Number) -> str:
+    return sympy_expression(sympy_expr(n))
+
+
+def sympy_expression(expr: sympy.Expr) -> str:
+    # Spaces for safety
+    return " " + sympy.latex(expr) + " "  # type: ignore
 
 
 def fraction(frac: Fraction, force_sign: bool = False) -> str:
@@ -59,7 +71,7 @@ def matrix(mat: Matriz) -> str:
         for j in range(1, mat.columnas + 1):
             if j != 1:
                 latex += " & "
-            latex += fraction(mat.at(i, j))
+            latex += sympy_expression(mat.at(i, j))
         latex += "\\\\"
 
     # Terminar
@@ -71,7 +83,7 @@ def vector(vec: Vector) -> str:
     latex = "\\begin{bmatrix}"
 
     for c in vec.componentes:
-        latex += fraction(c) + "\\"
+        latex += sympy_expression(c) + "\\"
 
     latex += "\\end{bmatrix}"
     return latex
@@ -147,7 +159,7 @@ def barrow() -> str:
     return "\\leftrightarrow "
 
 
-def term(varname: str, coefficent: Fraction = Fraction(1), forcesign: bool = False, hideOne: bool = True, ignoreZero: bool = False):
+def term(varname: str, coefficent: Number = sympy_expr(1), forcesign: bool = False, hideOne: bool = True, ignoreZero: bool = False) -> str:
     if coefficent == 0 and ignoreZero:
         return ""
 
@@ -156,11 +168,11 @@ def term(varname: str, coefficent: Fraction = Fraction(1), forcesign: bool = Fal
         latex += "+"
 
     if coefficent != 1 or not hideOne:
-        latex += fraction(coefficent)
+        latex += number_parse(coefficent)
 
     latex += varname
     return latex
 
 
-def indexedvar(varname: str, index: int):
+def indexedvar(varname: str, index: int) -> str:
     return varname + "_{" + str(index) + "} "

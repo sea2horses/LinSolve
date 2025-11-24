@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main(args: argparse.Namespace):
+def main(args: argparse.Namespace) -> None:
     if not args.console:
         # Fix for when packaging app with --noconsole
         # https://github.com/python-eel/Eel/issues/654
@@ -28,10 +28,6 @@ def main(args: argparse.Namespace):
     # WARN: Any imports that use eel must be after the above fix
     import eel
     from py.models import EelExposer
-
-    @eel.expose
-    def hola():
-        return "Hola!"
 
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -47,7 +43,7 @@ def main(args: argparse.Namespace):
 
     try:
         eel.start(
-            "" if not args.dev else {"port": 5173},
+            "" if not args.dev else {"port": 5173},  # type: ignore
             size=(args.width, args.height),
             port=8888,  # this should not be changed
             mode=None if args.mode == "None" else args.mode,
@@ -63,7 +59,7 @@ def main(args: argparse.Namespace):
                     f"Eel failed to start with {args.mode}, defaulting to Edge"  # noqa
                 )
                 eel.start(
-                    "" if not args.dev else {"port": 5173},
+                    "" if not args.dev else {"port": 5173},  # type: ignore
                     size=(args.width, args.height),
                     port=8888,  # this should not be changed
                     mode="edge",

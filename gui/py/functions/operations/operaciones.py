@@ -1,15 +1,16 @@
-# Multiplica una matriz (n x m) por un vector (m x 1)
-from py.functions.models.matriz import Matriz
-from py.functions.models.vector import Vector
+from ..models.matriz import Matriz
+from ..models.vector import Vector
 from fractions import Fraction
-from py.functions.utils.auxiliar import a_fraccion
+from ..utils.auxiliar import sympy_expr
 
-import py.functions.utils.latex as latex
+from ..utils import latex as latex
+from ..models.number import Number
+import sympy
 
 SILENT_MODE = False
 
 
-def funnel(*_latex: str):
+def funnel(*_latex: str) -> None:
     if not SILENT_MODE:
         for part in _latex:
             latex.LATEX_STDOUT.writelatex(part)
@@ -17,9 +18,9 @@ def funnel(*_latex: str):
 # Latex helpers
 
 
-def latex_fila(numero: int, coeficiente: Fraction = Fraction(1), force_sign: bool = False) -> str:
+def latex_fila(numero: int, coeficiente: sympy.Expr = sympy_expr(1), force_sign: bool = False) -> str:
     if coeficiente != 1:
-        return latex.fraction(coeficiente, force_sign) + "f" + latex.subscript(str(numero))
+        return latex.number_parse(coeficiente) + "f" + latex.subscript(str(numero))
     else:
         return "f" + latex.subscript(str(numero))
 
@@ -31,16 +32,16 @@ def latex_fila(numero: int, coeficiente: Fraction = Fraction(1), force_sign: boo
 # f -> e*f
 
 
-def escalar_fila(mat: Matriz, fila: int, escalar: Fraction):
+def escalar_fila(mat: Matriz, fila: int, escalar: sympy.Expr) -> None:
     funnel(
         latex.indexedvar("f", fila),
         latex.rarrow(),
-        latex.term(latex.indexedvar("f", fila), a_fraccion(escalar))
+        latex.term(latex.indexedvar("f", fila), sympy_expr(escalar))
     )
 
     # Ciclamos por las columnas en la fila
     for i in range(1, mat.columnas + 1):
-        nuevo_valor: Fraction = mat.at(fila, i) * a_fraccion(escalar)
+        nuevo_valor: sympy.Expr = mat.at(fila, i) * sympy_expr(escalar)
         # En la posicion [fila, i] vamos a cambiar el valor por el mismo pero multiplicado por el escalar
         mat.set(fila, i, nuevo_valor)
 
@@ -49,7 +50,7 @@ def escalar_fila(mat: Matriz, fila: int, escalar: Fraction):
 # fa -> fa + fb
 
 
-def sumar_fila(mat: Matriz, fila_a: int, fila_b: int):
+def sumar_fila(mat: Matriz, fila_a: int, fila_b: int) -> None:
     funnel(latex.indexedvar("f", fila_a),
            latex.rarrow(),
            latex.indexedvar("f", fila_a),
@@ -59,7 +60,7 @@ def sumar_fila(mat: Matriz, fila_a: int, fila_b: int):
     # Ciclamos de nuevo por las columnas
     for i in range(1, mat.columnas + 1):
         # En la fila A, ponemos el resultado de A + B
-        nuevo_valor: Fraction = mat.at(fila_a, i) + mat.at(fila_b, i)
+        nuevo_valor: sympy.Expr = mat.at(fila_a, i) + mat.at(fila_b, i)
         mat.set(fila_a, i, nuevo_valor)
 
 # Sumar filas escaladas
@@ -73,7 +74,7 @@ def sumar_fila(mat: Matriz, fila_a: int, fila_b: int):
 # [0][-9][-3]
 
 
-def sumar_escalar_fila(mat: Matriz, escalar_a: Fraction, fila_a: int, escalar_b: Fraction, fila_b: int):
+def sumar_escalar_fila(mat: Matriz, escalar_a: sympy.Expr, fila_a: int, escalar_b: Fraction, fila_b: int) -> None:
     funnel(
         latex.indexedvar("f", fila_a),
         latex.rarrow(),
@@ -83,14 +84,14 @@ def sumar_escalar_fila(mat: Matriz, escalar_a: Fraction, fila_a: int, escalar_b:
     # Ciclamos por la fila A para cambiar los valores
     for i in range(1, mat.columnas + 1):
         # NUEVO VALor
-        nuevo_valor: Fraction = escalar_a * \
+        nuevo_valor: sympy.Expr = escalar_a * \
             mat.at(fila_a, i) + escalar_b * mat.at(fila_b, i)
         mat.set(fila_a, i, nuevo_valor)
 
 # La misma operacion pero en resta
 
 
-def restar_fila(mat: Matriz, fila_a: int, fila_b: int):
+def restar_fila(mat: Matriz, fila_a: int, fila_b: int) -> None:
     funnel(latex.indexedvar("f", fila_a),
            latex.rarrow(),
            latex.indexedvar("f", fila_a),
@@ -100,7 +101,7 @@ def restar_fila(mat: Matriz, fila_a: int, fila_b: int):
     # Ciclamos de nuevo por las columnas
     for i in range(1, mat.columnas + 1):
         # En la fila A, ponemos el resultado de A - B
-        nuevo_valor: Fraction = mat.at(fila_a, i) - mat.at(fila_b, i)
+        nuevo_valor: sympy.Expr = mat.at(fila_a, i) - mat.at(fila_b, i)
         mat.set(fila_a, i, nuevo_valor)
 
 # Restar filas escaladas
@@ -117,7 +118,7 @@ def restar_fila(mat: Matriz, fila_a: int, fila_b: int):
 # [1][5][4]
 # [0][-9][-3]
 
-def restar_escalar_fila(mat: Matriz, escalar_a, fila_a: int, escalar_b, fila_b: int):
+def restar_escalar_fila(mat: Matriz, escalar_a: Number, fila_a: int, escalar_b: Number, fila_b: int) -> None:
     funnel(
         latex.indexedvar("f", fila_a),
         latex.rarrow(),
@@ -128,15 +129,15 @@ def restar_escalar_fila(mat: Matriz, escalar_a, fila_a: int, escalar_b, fila_b: 
     # Ciclamos por la fila A para cambiar los valores
     for i in range(1, mat.columnas + 1):
         # NUEVO VALor
-        nuevo_valor: Fraction = a_fraccion(escalar_a) * \
-            mat.at(fila_a, i) - a_fraccion(escalar_b) * mat.at(fila_b, i)
+        nuevo_valor: sympy.Expr = sympy_expr(escalar_a) * \
+            mat.at(fila_a, i) - sympy_expr(escalar_b) * mat.at(fila_b, i)
         mat.set(fila_a, i, nuevo_valor)
 
 # Intercambio de filas
 # fa <-> fb
 
 
-def intercambiar_fila(mat: Matriz, fila_a: int, fila_b: int):
+def intercambiar_fila(mat: Matriz, fila_a: int, fila_b: int) -> None:
     funnel(
         latex.indexedvar("f", fila_a),
         latex.barrow(),
@@ -145,7 +146,7 @@ def intercambiar_fila(mat: Matriz, fila_a: int, fila_b: int):
     # Ciclamos de nuevo por las columnas
     for i in range(1, mat.columnas + 1):
         # Intercambiamos los valores
-        temp: Fraction = mat.at(fila_a, i)
+        temp: sympy.Expr = mat.at(fila_a, i)
         mat.set(fila_a, i, mat.at(fila_b, i))
         mat.set(fila_b, i, temp)
 
@@ -177,7 +178,7 @@ def columna_nula(mat: Matriz, columna: int) -> bool:
 # OPERACIONES ENTRE MATRICES
 
 # Suma dos matrices y devuelve una nueva con el resultado
-def suma_matrices(matrizA: Matriz, matrizB: Matriz):
+def suma_matrices(matrizA: Matriz, matrizB: Matriz) -> Matriz:
     if matrizA.filas != matrizB.filas or matrizA.columnas != matrizB.columnas:
         raise Exception(
             f"No se puede sumar una matriz de {matrizA.filas}x{matrizA.columnas} con una matriz de {matrizB.filas}x{matrizB.columnas}")
@@ -199,8 +200,8 @@ def suma_matrices(matrizA: Matriz, matrizB: Matriz):
             b = matrizB.at(fila, columna)
             res = a + b
             funnel(
-                latex.fraction(
-                    a), " + ", latex.fraction(b), " = ", latex.fraction(res), latex.newline()
+                latex.number_parse(
+                    a), " + ", latex.number_parse(b), " = ", latex.number_parse(res), latex.newline()
             )
             nueva_matriz.set(fila, columna, res)
 
@@ -231,16 +232,16 @@ def resta_matrices(matrizA: Matriz, matrizB: Matriz) -> Matriz:
             b = matrizB.at(fila, columna)
             res = a - b
             funnel(
-                latex.fraction(
-                    a), " - ", latex.fraction(b), " = ", latex.fraction(res), latex.newline()
+                latex.number_parse(
+                    a), " - ", latex.number_parse(b), " = ", latex.number_parse(res), latex.newline()
             )
             nueva_matriz.set(fila, columna, res)
 
     return nueva_matriz
 
 
-def matriz_por_escalar(matriz: Matriz, escalar: Fraction) -> Matriz:
-    funnel(latex.text("Escalando matriz por "), latex.fraction(a_fraccion(escalar)), latex.newline(),
+def matriz_por_escalar(matriz: Matriz, escalar: sympy.Expr) -> Matriz:
+    funnel(latex.text("Escalando matriz por "), latex.number_parse(sympy_expr(escalar)), latex.newline(),
            latex.matrix(matriz), latex.newline())
 
     nueva_matriz: Matriz = Matriz(matriz.filas, matriz.columnas)
@@ -248,9 +249,9 @@ def matriz_por_escalar(matriz: Matriz, escalar: Fraction) -> Matriz:
     for fila in range(1, matriz.filas + 1):
         for columna in range(1, matriz.columnas + 1):
             val = matriz.at(fila, columna)
-            res = val * a_fraccion(escalar)
-            funnel(latex.fraction(val), latex.cdot(), latex.fraction(
-                a_fraccion(escalar)), " = ", latex.fraction(res), latex.newline())
+            res = val * sympy_expr(escalar)
+            funnel(latex.number_parse(val), latex.cdot(), latex.number_parse(
+                sympy_expr(escalar)), " = ", latex.number_parse(res), latex.newline())
             nueva_matriz.set(fila, columna, res)
 
     return nueva_matriz
@@ -322,7 +323,7 @@ def multiplicar_matrices(matrizA: Matriz, matrizB: Matriz) -> Matriz:
     for i in range(1, matrizA.filas + 1):          # Recorre filas de A (1..m)
         for j in range(1, matrizB.columnas + 1):   # Recorre columnas de B (1..p)
             # Acumulador para el producto escalar fila_i(A) · columna_j(B)
-            suma = Fraction(0)
+            suma = sympy_expr(0)
 
             # Paso 3.1: Calcular el producto escalar
             # k recorre los índices compartidos (1..n)
@@ -340,12 +341,12 @@ def multiplicar_matrices(matrizA: Matriz, matrizB: Matriz) -> Matriz:
             for k in range(1, matrizA.columnas + 1):
                 prod = matrizA.at(i, k) * matrizB.at(k, j)
                 terms.append(prod)
-                funnel(latex.fraction(matrizA.at(i, k)), latex.cdot(), latex.fraction(
-                    matrizB.at(k, j)), " = ", latex.fraction(prod), latex.newline())
+                funnel(latex.number_parse(matrizA.at(i, k)), latex.cdot(), latex.number_parse(
+                    matrizB.at(k, j)), " = ", latex.number_parse(prod), latex.newline())
                 suma += prod
             # Mostrar suma total
-            funnel(" + ".join(latex.fraction(t) for t in terms),
-                   " = ", latex.fraction(suma), latex.newline())
+            funnel(" + ".join(latex.number_parse(t) for t in terms),
+                   " = ", latex.number_parse(suma), latex.newline())
 
             # Paso 4: Asignar el valor calculado a la celda (i, j) del resultado
             nueva_matriz.set(i, j, suma)
@@ -379,7 +380,7 @@ def matriz_inversa(matriz: Matriz) -> Matriz:
 
     for fila in range(1, matriz.filas + 1):
         for columna in range(1, matriz.columnas + 1):
-            valor: Fraction
+            valor: sympy.Expr
 
             # Diagonal
             if fila == columna:
@@ -433,7 +434,7 @@ def cofactor(matriz: Matriz, i: int, j: int) -> Matriz:
     return remover_fila(remover_columna(matriz, j), i)
 
 
-# def calcular_determinante(matriz: Matriz) -> Fraction:
+# def calcular_determinante(matriz: Matriz) -> sympy.Expr:
 #     if matriz.filas != matriz.columnas:
 #         raise Exception(
 #             f"No se puede obtener el determinante de una matriz no cuadrada")
@@ -442,8 +443,8 @@ def cofactor(matriz: Matriz, i: int, j: int) -> Matriz:
 
 #     if n == 2:
 #         # Diagonal principal
-#         diagonal_principal: Fraction = Fraction(1)
-#         diagonal_secundaria: Fraction = Fraction(1)
+#         diagonal_principal: sympy.Expr = sympy_expr(1)
+#         diagonal_secundaria: sympy.Expr = sympy_expr(1)
 
 #         for i in range(1, n + 1):
 #             print(
@@ -456,7 +457,7 @@ def cofactor(matriz: Matriz, i: int, j: int) -> Matriz:
 #         raise Exception(
 #             f"No se ha implementado la obtención del determinante en matrices {n}x{n}")
 
-def determinante_por_sarrus(matriz: Matriz) -> Fraction:
+def determinante_por_sarrus(matriz: Matriz) -> sympy.Expr:
     if matriz.filas != matriz.columnas:
         raise Exception(
             f"No se puede obtener el determinante de una matriz no cuadrada")
@@ -484,42 +485,42 @@ def determinante_por_sarrus(matriz: Matriz) -> Fraction:
            latex.newline(), latex.matrix(detmatriz), latex.newline())
 
     # Ahora calculamos las diagonales positivas
-    suma_diagonales_positivas = Fraction(0)
+    suma_diagonales_positivas = sympy_expr(0)
 
     for i in range(0, n):
         diagonal = []
-        valor_diagonal = Fraction(1)
+        valor_diagonal = sympy_expr(1)
         for j in range(1, n + 1):
             diagonal.append(detmatriz.at(j + i, j))
             valor_diagonal *= detmatriz.at(j + i, j)
         funnel(latex.text(f"Diagonal positiva #{i+1}: "), " ",
-               " ".join(latex.fraction(x) for x in diagonal),
-               " = ", latex.fraction(valor_diagonal), latex.newline())
+               " ".join(latex.number_parse(x) for x in diagonal),
+               " = ", latex.number_parse(valor_diagonal), latex.newline())
         suma_diagonales_positivas += valor_diagonal
 
     # Ahora la de las diagonales negativas
-    suma_diagonales_negativas = Fraction(0)
+    suma_diagonales_negativas = sympy_expr(0)
 
     for i in range(0, n):
         diagonal = []
-        valor_diagonal = Fraction(1)
+        valor_diagonal = sympy_expr(1)
         for j in range(1, n + 1):
             diagonal.append(detmatriz.at(j + i, n - j + 1))
             valor_diagonal *= detmatriz.at(j + i, n - j + 1)
         funnel(latex.text(f"Diagonal negativa #{i+1}: "), " ",
-               " ".join(latex.fraction(x) for x in diagonal),
-               " = ", latex.fraction(valor_diagonal), latex.newline())
+               " ".join(latex.number_parse(x) for x in diagonal),
+               " = ", latex.number_parse(valor_diagonal), latex.newline())
         suma_diagonales_negativas += valor_diagonal
 
     return suma_diagonales_positivas - suma_diagonales_negativas
 
 
-def determinante_por_cofactores(matriz: Matriz, iteration: int = 0) -> Fraction:
+def determinante_por_cofactores(matriz: Matriz, iteration: int = 0) -> sympy.Expr:
     if matriz.filas != matriz.columnas:
         raise Exception(
             f"No se puede obtener el determinante de una matriz no cuadrada")
 
-    def printmat():
+    def printmat() -> str:
         return latex.matrix(matriz)
 
     n = matriz.filas
@@ -529,16 +530,16 @@ def determinante_por_cofactores(matriz: Matriz, iteration: int = 0) -> Fraction:
     # El determinante de una matriz de 1 x 1 es el valor de su unico elemento
     if n == 1:
         funnel(latex.text(("|" * iteration) + " Matriz 1x1: det = "),
-               latex.fraction(matriz.at(1, 1)), latex.newline())
+               latex.number_parse(matriz.at(1, 1)), latex.newline())
         return matriz.at(1, 1)
 
-    suma: Fraction = Fraction(0)
-    componentes: list[Fraction] = []
+    suma: sympy.Expr = sympy_expr(0)
+    componentes: list[sympy.Expr] = []
 
     for i in range(1, matriz.columnas + 1):
         valor = matriz.at(1, i)
         # signo del cofactor: (-1)^(1+i)
-        inv = Fraction((-1) ** (1 + i))
+        inv = sympy_expr((-1) ** (1 + i))
 
         # si el elemento es 0, no aporta al determinante (evitamos trabajo extra)
         if valor == 0:
@@ -550,16 +551,16 @@ def determinante_por_cofactores(matriz: Matriz, iteration: int = 0) -> Fraction:
                f" Cofactor (1,{i})"), latex.newline(), latex.matrix(mat), latex.newline())
         det = determinante_por_cofactores(mat, iteration=iteration + 1)
         funnel(latex.text(("|" * iteration) + " Termino:"), " ",
-               latex.fraction(valor), latex.cdot(), latex.text(
-                   f"(-1)^{{{1 + i}}}"), latex.cdot(), latex.fraction(det),
-               " = ", latex.fraction(valor * inv * det), latex.newline())
+               latex.number_parse(valor), latex.cdot(), latex.text(
+                   f"(-1)^{{{1 + i}}}"), latex.cdot(), latex.number_parse(det),
+               " = ", latex.number_parse(valor * inv * det), latex.newline())
         suma += valor * inv * det
         componentes.append(valor * inv * det)
 
     funnel(latex.text(("|" * iteration) + " Resultado det:"),
            " ",
-           " + ".join(latex.fraction(x) for x in componentes),
-           " = ", latex.fraction(suma), latex.newline())
+           " + ".join(latex.number_parse(x) for x in componentes),
+           " = ", latex.number_parse(suma), latex.newline())
     return suma
 
 
@@ -583,7 +584,7 @@ def matriz_adjunta(matriz: Matriz) -> Matriz:
             det = determinante_por_cofactores(co)
             mat.set(i, j, det * inv)
             funnel(latex.text(f"C{i}{j} = det(cof) * (-1)^{{{i + j}}} = "),
-                   latex.fraction(det * inv), latex.newline())
+                   latex.number_parse(det * inv), latex.newline())
 
     funnel(latex.text("Matriz adjunta obtenida:"),
            latex.newline(), latex.matrix(mat), latex.newline())
@@ -609,7 +610,7 @@ def inversion_por_adjunta(matriz: Matriz) -> Matriz:
     # La trasponemos
     trasp = transponer_matriz(adj)
     funnel(latex.text("Matriz traspuesta:"), latex.newline(), latex.matrix(trasp), latex.newline(),
-           latex.text("Multiplicando por 1/det"), " = ", latex.fraction(Fraction(1, 1) / det), latex.newline())
+           latex.text("Multiplicando por 1/det"), " = ", latex.number_parse(sympy_expr(1) / det), latex.newline())
 
     return matriz_por_escalar(trasp, 1/det)
 
@@ -620,9 +621,9 @@ def hacer_matriz_identidad(tamaño: int) -> Matriz:
     for fila in range(1, tamaño + 1):
         for columna in range(1, tamaño + 1):
             if fila == columna:
-                nueva_matriz.set(fila, columna, Fraction(1))
+                nueva_matriz.set(fila, columna, sympy_expr(1))
             else:
-                nueva_matriz.set(fila, columna, Fraction(0))
+                nueva_matriz.set(fila, columna, sympy_expr(0))
 
     return nueva_matriz
 
@@ -641,7 +642,7 @@ def slice_matriz(mat: Matriz, rango_filas: tuple[int, int], rango_columnas: tupl
 # OPERACIONES DE VECTORES
 
 
-def suma_vectores(vectorA: Vector, vectorB: Vector):
+def suma_vectores(vectorA: Vector, vectorB: Vector) -> Vector:
     # Ver compatibilidad
     if vectorA.dimension != vectorB.dimension:
         raise Exception(
@@ -654,14 +655,14 @@ def suma_vectores(vectorA: Vector, vectorB: Vector):
         a = vectorA.at(i)
         b = vectorB.at(i)
         r = a + b
-        funnel(latex.fraction(a), " + ", latex.fraction(b),
-               " = ", latex.fraction(r), latex.newline())
+        funnel(latex.number_parse(a), " + ", latex.number_parse(b),
+               " = ", latex.number_parse(r), latex.newline())
         componentes.append(r)
 
     return Vector(componentes)
 
 
-def resta_vectores(vectorA: Vector, vectorB: Vector):
+def resta_vectores(vectorA: Vector, vectorB: Vector) -> Vector:
     # Ver compatibilidad
     if vectorA.dimension != vectorB.dimension:
         raise Exception(
@@ -674,29 +675,29 @@ def resta_vectores(vectorA: Vector, vectorB: Vector):
         a = vectorA.at(i)
         b = vectorB.at(i)
         r = a - b
-        funnel(latex.fraction(a), " - ", latex.fraction(b),
-               " = ", latex.fraction(r), latex.newline())
+        funnel(latex.number_parse(a), " - ", latex.number_parse(b),
+               " = ", latex.number_parse(r), latex.newline())
         componentes.append(r)
 
     return Vector(componentes)
 
 
-def vector_por_escalar(vector: Vector, escalar):
-    funnel(latex.text("Escalando vector por "), latex.fraction(a_fraccion(
+def vector_por_escalar(vector: Vector, escalar: Number) -> Vector:
+    funnel(latex.text("Escalando vector por "), latex.number_parse(sympy_expr(
         escalar)), latex.newline(), latex.vector(vector), latex.newline())
     componentes = []
 
     for i in range(1, vector.dimension + 1):
         v = vector.at(i)
-        r = v * a_fraccion(escalar)
-        funnel(latex.fraction(v), latex.cdot(), latex.fraction(
-            a_fraccion(escalar)), " = ", latex.fraction(r), latex.newline())
+        r = v * sympy_expr(escalar)
+        funnel(latex.number_parse(v), latex.cdot(), latex.number_parse(
+            sympy_expr(escalar)), " = ", latex.number_parse(r), latex.newline())
         componentes.append(r)
 
     return Vector(componentes)
 
 
-def matriz_por_vector(matriz, vector):
+def matriz_por_vector(matriz: Matriz, vector: Vector) -> Vector:
     """
     Multiplica una matriz por un vector.
     matriz: instancia de Matriz (n x m)
@@ -717,19 +718,19 @@ def matriz_por_vector(matriz, vector):
     resultado = []
     # Para cada fila de la matriz
     for i in range(1, matriz.filas + 1):
-        suma = Fraction(0)
-        elementos: list[Fraction] = []
+        suma = sympy_expr(0)
+        elementos: list[sympy.Expr] = []
         # Multiplicamos cada elemento de la fila por el correspondiente del vector
         funnel(latex.text(f"Fila {i} · vector"), latex.newline())
         for j in range(1, matriz.columnas + 1):
             prod = matriz.at(i, j) * vector.at(j)
-            funnel(latex.fraction(matriz.at(i, j)), latex.cdot(), latex.fraction(
-                vector.at(j)), " = ", latex.fraction(prod), latex.newline())
+            funnel(latex.number_parse(matriz.at(i, j)), latex.cdot(), latex.number_parse(
+                vector.at(j)), " = ", latex.number_parse(prod), latex.newline())
             suma += prod
             elementos.append(prod)
 
-        funnel(" + ".join(latex.fraction(elem) for elem in elementos),
-               " = ", latex.fraction(suma), latex.newline())
+        funnel(" + ".join(latex.number_parse(elem) for elem in elementos),
+               " = ", latex.number_parse(suma), latex.newline())
         resultado.append(suma)
     # Retornamos el vector resultado
     return Vector(resultado)
@@ -737,7 +738,7 @@ def matriz_por_vector(matriz, vector):
 # Crear matrices
 
 
-def crear_matriz_identidad(tamaño: int):
+def crear_matriz_identidad(tamaño: int) -> Matriz:
     # Creamos la matriz del tamaño pedido
     # Nueva matriz
     nueva_matriz: Matriz = Matriz(tamaño, tamaño)
@@ -748,3 +749,9 @@ def crear_matriz_identidad(tamaño: int):
         nueva_matriz.set(i, i, 1)
 
     return nueva_matriz
+
+
+def transponer_vector(vec: Vector) -> Vector:
+    nvec = vec.copy()
+    nvec.transpose()
+    return nvec

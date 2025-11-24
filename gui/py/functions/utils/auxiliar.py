@@ -1,5 +1,8 @@
 from fractions import Fraction
-from typing import TypeVar, Generic
+from typing import TypeVar
+from ..models.number import Number
+import sympy
+import sympy.parsing.sympy_parser
 
 T = TypeVar("T")
 
@@ -8,15 +11,21 @@ def array_top(arr: list[T]) -> T:
     return arr[len(arr) - 1]
 
 
-def a_fraccion(x: str) -> Fraction:
+def sympy_expr(x: str | Number) -> sympy.Expr:
     """
     Convierte un número (decimal o fracción en string) a Fraction exacta.
     """
     try:
-        if '/' in str(x):
-            return Fraction(x)
+        if isinstance(x, sympy.Expr):
+            return x
+        elif isinstance(x, Fraction):
+            return sympy.Rational(x.numerator, x.denominator)
+        elif isinstance(x, str):
+            return sympy.parsing.sympy_parser.parse_expr(x)
+        elif isinstance(x, int):
+            return sympy.Integer(x)
         else:
-            return Fraction(str(x))
+            return sympy.Float(x)
     except Exception as e:
         raise ValueError(f"Entrada inválida: {x}") from e
 

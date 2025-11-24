@@ -25,6 +25,18 @@
 		font-feature-settings: normal;
 		letter-spacing: 0;
 	}
+
+	math-field {
+		font-family: 'KaTeX_Main', 'Times New Roman', serif !important;
+		--caret-color: var(--color-primary);
+		--selection-color: var(--color-base-100);
+		--selection-background-color: var(--color-primary);
+		--contains-highlight-background-color: color-mix(in srgb, var(--color-neutral), transparent 80%);
+		--latex-color: var(--color-neutral);
+		--smart-fence-color: var(--color-primary);
+		--primary: var(--color-primary);
+		@apply text-neutral min-w-10 inline-block bg-base-100 outline outline-base-300 cursor-text focus:outline-primary border-none p-2;
+	}
 }
 
 @layer utilities {
@@ -34,7 +46,7 @@
 }
 
 /* MathLive (math-field) global theme to match FlyonUI's VSCode theme */
-:root {
+/* :root {
 	--vscode-bg: rgba(30, 30, 30, 0);
 	--vscode-panel-bg: #252526;
 	--vscode-fg: #d4d4d4;
@@ -46,11 +58,11 @@
 		'Google Sans Code', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New',
 		monospace;
 	--math-font-size: 20px;
-}
+} */
 
 /* Target MathLive's web component `math-field`. This provides
    a consistent VSCode-like dark appearance for inline editors. */
-math-field {
+/* math-field {
 	display: inline-block;
 	width: 100%;
 	min-width: 0;
@@ -86,12 +98,14 @@ math-field:focus-within {
 }
 
 /* Selection inside the math field */
+/*
 math-field ::selection {
 	background: var(--vscode-selection);
 	color: inherit;
 }
 
 /* Make sure internal editable content doesn't force width growth */
+/*
 math-field,
 math-field * {
 	max-width: 100%;
@@ -100,6 +114,7 @@ math-field * {
 }
 
 /* Provide a subtle placeholder color when empty */
+/*
 math-field[placeholder],
 math-field .mf-placeholder {
 	color: var(--vscode-muted);
@@ -107,6 +122,7 @@ math-field .mf-placeholder {
 
 /* If MathLive exposes parts or specific classes we can tweak color tokens further.
    These are conservative, non-invasive selectors which won't break if the internals change. */
+   /*
 math-field ::slotted(*) {
 	color: inherit;
 }

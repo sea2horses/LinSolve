@@ -1,0 +1,11 @@
+{
+    "typeCheckingMode": "strict",
+    "reportOperatorIssue": "information",
+    "reportUnknownVariableType": "information",
+    "reportUnknownArgumentType": "information",
+    "reportUnknownMemberType": "information",
+    "reportUnknownParameterType": "information",
+    "reportUnknownLambdaType": "information",
+    "reportUnusedImport": "information",
+    "reportUnnecessaryIsInstance": "none"
+}

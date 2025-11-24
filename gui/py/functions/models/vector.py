@@ -1,20 +1,30 @@
 from fractions import Fraction
-from py.functions.utils.auxiliar import a_fraccion
+from ..utils.auxiliar import sympy_expr
+from ..models.number import Number
+import sympy
+from typing import Any
+from enum import Enum
+
+
+class VectorTipo(Enum):
+    FILA = 0
+    COLUMNA = 1
 
 
 class Vector:
-    componentes: list[Fraction]
+    componentes: list[sympy.Expr]
     dimension: int
+    tipo: VectorTipo = VectorTipo.COLUMNA
 
-    def __init__(self, componentes):
+    def __init__(self, componentes: Any):
         if not componentes:
             raise Exception("Un vector no puede estar vacío.")
 
-        self.componentes: list[Fraction] = list(
-            a_fraccion(comp) for comp in componentes)
+        self.componentes = list(
+            sympy_expr(comp) for comp in componentes)
         self.dimension = len(componentes)
 
-    def at(self, indice: int) -> Fraction:
+    def at(self, indice: int) -> sympy.Expr:
         """
         Devuelve el valor en la posición `indice` (1-indexado).
         """
@@ -23,14 +33,20 @@ class Vector:
                 f"Índice fuera de rango: se pidió el componente {indice} de un vector de dimensión {self.dimension}")
         return self.componentes[indice - 1]
 
-    def set(self, indice: int, valor: float):
+    def set(self, indice: int, valor: Number) -> None:
         """
         Establece el valor en la posición `indice` (1-indexado).
         """
         if indice <= 0 or indice > self.dimension:
             raise Exception(
                 f"Índice fuera de rango: se intentó modificar el componente {indice} en un vector de dimensión {self.dimension}")
-        self.componentes[indice - 1] = a_fraccion(valor)
+        self.componentes[indice - 1] = sympy_expr(valor)
+
+    def transpose(self) -> None:
+        if self.tipo == VectorTipo.COLUMNA:
+            self.tipo = VectorTipo.FILA
+        else:
+            self.tipo = VectorTipo.COLUMNA
 
     def __str__(self) -> str:
         """
@@ -45,7 +61,7 @@ class Vector:
         """
         return self.dimension
 
-    def copy(self):
+    def copy(self) -> "Vector":
         """
         Devuelve una copia del vector.
         """

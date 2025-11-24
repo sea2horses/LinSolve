@@ -1,6 +1,8 @@
 export type MenuItem = { name: string; href: string; icon: string };
 export type Category = { name: string; items: (MenuItem | Category)[] };
 
+export const SideBarWidth: number = 300;
+
 export const SidebarItems: (MenuItem | Category)[] = [
     {
         name: 'Inicio',
@@ -124,7 +126,7 @@ export const SidebarItems: (MenuItem | Category)[] = [
     },
     {
         name: 'Laboratorio',
-        href: '#',
+        href: '/laboratorio',
         icon: 'tabler:function'
     },
     {
