@@ -1,24 +1,13 @@
 <script lang="ts">
 	import Katex from "$lib/components/Katex.svelte";
 	import MathLive from "$lib/components/MathLive.svelte";
-	import VariableInput from "$lib/components/VariableInput.svelte";
+	import VariableControl from "$lib/components/variablecontrol/VariableControl.svelte";
+	import VariableInput from "$lib/components/variablecontrol/VariableInput.svelte";
     import { EvaluateLatex } from "$lib/services/evaluate_latex";
 
     let math: string = $state("")
     let result: string = $state("")
     let err: string | null = $state(null)
-    // Dynamic variable inputs
-    let variables = $state([])
-    let nextId = 2
-
-    const addVariable = () => {
-        variables.push({ id: nextId++ })
-    }
-
-    const removeVariable = (idx: number) => {
-        // if (variables.length <= 1) return
-        variables.splice(idx, 1)
-    }
     
     const onSolve = async () => {
         result = "";
@@ -33,23 +22,14 @@
 </script>
 
 <div class="flex-center flex-col w-full h-full gap-6 p-5">
-    <div class="w-full flex items-center justify-between mb-3">
-        <div class="text-sm">Variables: {variables.length}</div>
-        <div class="flex gap-2">
-            <button class="btn btn-sm btn-outline" onclick={addVariable}>Añadir Variable</button>
-        </div>
+    <div class="w-full">
+        <p class="text-sm text-primary">LABORATORIO</p>
+        <p class="text-2xl text-neutral">Prueba propiedades, expresiones y evaluaciones</p>
+        <p class="text-sm text-secondary">Define variables y evalua</p>
     </div>
 
-    <div id="variable-container"
-        style="display:grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: row; gap:1rem; width:100%;">
-        {#each variables as v, i (v.id)}
-            <div class="relative">
-                <VariableInput />
-                <button class="btn btn-xs btn-circle btn-outline absolute" style="right:0.5rem; top:0.5rem;"
-                    onclick={() => removeVariable(i)}>×</button>
-            </div>
-        {/each}
-    </div>
+    <VariableControl/>
+
     <MathLive className="text-2xl" bind:value={math}/>
     <div class="flex-center flex-col p-5">
         Math: {math}

@@ -48,18 +48,4 @@
 		width: 100%;
 		border-collapse: collapse;
 	}
-
-	/* Allow the inner cell to scroll horizontally without growing the column */
-	td .cell {
-		min-width: 0; /* allow overflow to be clipped inside cell */
-		overflow: auto;
-		white-space: nowrap;
-	}
-
-	/* Ensure MathLive (or its wrapper) can shrink to fit the cell */
-	td .cell :global(*) {
-		min-width: 0;
-		max-width: 100%;
-		box-sizing: border-box;
-	}
 </style>

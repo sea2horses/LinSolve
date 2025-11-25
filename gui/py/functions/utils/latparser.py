@@ -721,7 +721,7 @@ def generic_transpose(a: Operand) -> Operand:
     raise Exception(f"No se puede invertir objeto de tipo {type(a)}")
 
 
-def eval_ast(node: AST, env: dict[str, Operand | None]) -> Operand:
+def eval_ast(node: AST, env: dict[str, Operand | None   ]) -> Operand:
     """
     Evaluate an AST into a Python Fraction.
 
