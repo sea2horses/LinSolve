@@ -25,7 +25,7 @@
     <div class="w-full">
         <p class="text-sm text-primary">LABORATORIO</p>
         <p class="text-2xl text-neutral">Prueba propiedades, expresiones y evaluaciones</p>
-        <p class="text-sm text-secondary">Define variables y evalua</p>
+        <p class="text-sm text-neutral/50">Define variables y evalua</p>
     </div>
 
     <VariableControl/>

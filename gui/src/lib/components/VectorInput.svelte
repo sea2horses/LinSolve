@@ -8,7 +8,7 @@
 		disabled?: boolean;
 	}
 
-	let { Header, Dimension, value = $bindable<string[]>(), disabled = false }: Params = $props();
+	let { Header, Dimension, value = $bindable<string[]>([]), disabled = false }: Params = $props();
 	// Keep `value` as a Columns x Headers.length 2D array.
 	// Preserve existing values when possible and fill missing cells with empty strings.
 	$effect(() => {

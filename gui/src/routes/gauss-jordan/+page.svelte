@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 
 	import { GaussJordan } from '$lib/services/gauss_jordan';
+	import OutputBox from '$lib/components/OutputBox.svelte';
 
 	let rows: number = $state(3);
 	let columns: number = $state(3);
@@ -61,7 +62,7 @@
 	const canDisableSolve = $derived(loading || !rows || !columns);
 </script>
 
-<main class="flex min-h-screen w-full flex-col items-center gap-6 px-4 py-8">
+<main class="flex-center min-h-screen w-full flex-col gap-6 px-4 py-8">
 	<section class="text-center">
 		<p class="text-sm font-semibold text-primary uppercase">Método Gauss-Jordan</p>
 		<h1 class="text-4xl font-bold">Resuelve sistemas paso a paso</h1>
@@ -72,9 +73,9 @@
 	</section>
 
 	<section
-		class="grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]"
+		class="w-full items-start gap-6 flex-center"
 	>
-		<div class="card-border card flex flex-col gap-6 rounded-2xl p-6 lg:min-w-[360px]">
+		<div class="card-border card flex flex-col gap-6 p-6 w-[80%] lg:min-w-[360px]">
 			<header class="flex flex-col gap-2">
 				<h2 class="text-xl font-semibold">Configura tu sistema</h2>
 				<p class="text-sm text-base-content/70">
@@ -100,12 +101,12 @@
 			</div>
 
 			<div class="grid gap-5 lg:grid-cols-[3fr_1fr]">
-				<div class="card-border card rounded-2xl p-4">
+				<div class="card-border card p-4">
 					<p class="mb-3 text-sm font-semibold text-base-content/70">Coeficientes</p>
 					<MatrixInput Headers={headers} Rows={rows} bind:value={matrix} disabled={loading} />
 				</div>
 
-				<div class="card-border card rounded-2xl p-4">
+				<div class="card-border card p-4">
 					<p class="mb-3 text-sm font-semibold text-base-content/70">Resultados</p>
 					<VectorInput Header="R" Dimension={rows} bind:value={results} disabled={loading} />
 				</div>
@@ -130,7 +131,8 @@
 			</div>
 		</div>
 
-		<div class="card-border card flex min-h-[320px] min-w-0 flex-col gap-4 rounded-2xl p-6">
+
+		<!-- <div class="card-border card flex min-h-[320px] min-w-0 flex-col gap-4 rounded-2xl p-6">
 			<header class="space-y-1">
 				<h2 class="text-xl font-semibold">Salida en LaTeX</h2>
 				<p class="text-sm text-base-content/70">
@@ -168,6 +170,10 @@
 					Ingresa tu sistema y pulsa "Resolver" para ver los pasos de Gauss-Jordan aquí mismo.
 				</p>
 			{/if}
-		</div>
+		</div> -->
+	</section>
+
+	<section class="w-[80%] flex-center">
+		<OutputBox bind:value={latexOutput} bind:error={errorMessage} className="w-full"/>
 	</section>
 </main>

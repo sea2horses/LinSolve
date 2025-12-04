@@ -21,11 +21,14 @@ def sympy_expr(x: str | Number) -> sympy.Expr:
         elif isinstance(x, Fraction):
             return sympy.Rational(x.numerator, x.denominator)
         elif isinstance(x, str):
-            return sympy.parsing.sympy_parser.parse_expr(x)
+            try:
+                return sympy_expr(decimal_a_fraccion(x))
+            except Exception:
+                return sympy.parsing.sympy_parser.parse_expr(x)
         elif isinstance(x, int):
             return sympy.Integer(x)
         else:
-            return sympy.Float(x)
+            return sympy_expr(decimal_a_fraccion(str(x)))
     except Exception as e:
         raise ValueError(f"Entrada inválida: {x}") from e
 
@@ -41,8 +44,8 @@ def decimal_a_fraccion(x: str) -> Fraction:
     pieces: list[str] = trim.split(".")
     result_fraction: Fraction = Fraction(int(pieces[0]))
     if len(pieces) > 2 or trim.count('.') >= 2:
-        raise ValueError("Excess of / in string")
-    elif len(pieces) > 2:
+        raise ValueError("Excess of . in string")
+    elif len(pieces) == 2:
         # Obtain decimal part
         f: Fraction = Fraction(0)
         # Get each decimal position
@@ -51,4 +54,5 @@ def decimal_a_fraccion(x: str) -> Fraction:
             f += Fraction(n, pow(10, i + 1))
         result_fraction += f
 
+    print(f"Generated fraction {result_fraction} from decimal {x}")
     return result_fraction

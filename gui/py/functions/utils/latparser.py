@@ -502,8 +502,8 @@ class Parser(ICommandParser):
             self.advance()
 
         num_str = "".join(chars)      # e.g. "12.5"
-        frac = sympy_expr(num_str)
-        return NumberAST(frac)
+        frac = decimal_a_fraccion(num_str)
+        return NumberAST(sympy.Rational(frac.numerator, frac.denominator))
 
     def parsefrac(self) -> AST:
         """
@@ -721,7 +721,7 @@ def generic_transpose(a: Operand) -> Operand:
     raise Exception(f"No se puede invertir objeto de tipo {type(a)}")
 
 
-def eval_ast(node: AST, env: dict[str, Operand | None   ]) -> Operand:
+def eval_ast(node: AST, env: dict[str, Operand | None]) -> Operand:
     """
     Evaluate an AST into a Python Fraction.
 
