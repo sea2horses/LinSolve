@@ -10,30 +10,26 @@
     let { value = $bindable<string | null>(null), error = $bindable<string | null>(null), className = "" }: Params = $props();
 </script>
 
-<div class="card card-border shadow-none {className}">
+<div class={`card card-border shadow-none ${className}`}>
     <div class="card-body">
-        <h1 class="text-2xl text-neutral">Salida en LaTeX</h1>
-        <p class="text-sm text-neutral/50">Visualiza los pasos o copia el código para tu informe.</p>
+        <h1 class="text-2xl text-base-content">Salida en LaTeX</h1>
+        <p class="text-sm text-base-content/60">Visualiza los pasos o copia el codigo para tu informe.</p>
         {#if value}
-            <div class="card bg-base-200 text-white block overflow-auto">
+            <div class="card bg-base-200 text-base-content block overflow-auto">
                 <Katex math={value} displayMode/>
             </div>
 
-            <div class="accordion divide-neutral/20 divide-y">
-                <div class="accordion-item" id="payment-arrow">
-                    <button class="accordion-toggle inline-flex items-center gap-x-4 text-primary" aria-controls="payment-arrow-collapse" aria-expanded="true">
-                        <span class="icon-[tabler--chevron-right] accordion-item-active:rotate-90 size-5 shrink-0 transition-transform duration-300 rtl:rotate-180" ></span>
-                        LaTeX crudo
-                    </button>
-                    <div id="payment-arrow-collapse" class="accordion-content w-full overflow-hidden transition-[height] duration-300" aria-labelledby="payment-arrow" role="region">
-                        <div class="px-5 pb-4">
-                            <p class="text-sm text-neutral font-normal">
-                                {value}
-                            </p>
-                        </div>
-                    </div>
+            <details class="mt-3">
+                <summary class="cursor-pointer text-primary flex items-center gap-2">
+                    <span class="icon-[tabler--chevron-right] size-4"></span>
+                    LaTeX crudo
+                </summary>
+                <div class="px-2 py-2">
+                    <p class="text-sm text-base-content font-normal break-words whitespace-pre-wrap">
+                        {value}
+                    </p>
                 </div>
-            </div>
+            </details>
         {:else if error}
             <div class="alert alert-error flex items-center gap-4" role="alert">
                 <span class="icon-[tabler--alert-triangle] shrink-0 size-6"></span>

@@ -9,6 +9,12 @@
 			href: '/gauss-jordan/'
 		},
 		{
+			title: 'Metodos numericos',
+			description: 'Calcula raices con biseccion, regla falsa, Newton y secante.',
+			icon: 'mdi:chart-bell-curve',
+			href: '/metodos-numericos'
+		},
+		{
 			title: 'Matrices',
 			description: 'Suma, resta, multiplica y calcula determinantes en segundos.',
 			icon: 'mdi:matrix',
@@ -32,12 +38,13 @@
 		{ label: 'Matrices basicas', href: '/matrices#operaciones' },
 		{ label: 'Producto matriz vector', href: '/vectores#matriz-vector' },
 		{ label: 'Combinacion lineal', href: '/vectores#combinacion' },
+		{ label: 'Metodos numericos', href: '/metodos-numericos' },
 		{ label: 'Configurar tema', href: '/configuracion' }
 	];
 </script>
 
 <svelte:head>
-	<title>nLinal | Toolkit de algebra lineal</title>
+	<title>LinSolve | Toolkit de algebra lineal</title>
 </svelte:head>
 
 <main class="min-h-screen w-full bg-base-100">
@@ -47,7 +54,7 @@
 		</div>
 		<div class="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr]">
 			<div class="space-y-5">
-				<p class="text-sm font-semibold uppercase tracking-wide text-primary">nLinal toolkit</p>
+				<p class="text-sm font-semibold uppercase tracking-wide text-primary">LinSolve toolkit</p>
 				<h1 class="text-5xl font-bold leading-tight">
 					Practica algebra lineal con modulos guiados y salida en LaTeX
 				</h1>

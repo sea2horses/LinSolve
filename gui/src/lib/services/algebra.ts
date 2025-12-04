@@ -82,3 +82,14 @@ export const dependenciaLineal = async (vectores: VectorSpec[]): Promise<string>
 		vectores.map((v) => normalizeVector(v))
 	);
 };
+
+export const resolverCramer = async (
+	coeficientes: MatrixSpec,
+	resultados: VectorSpec
+): Promise<string> => {
+	return callPyFunc(
+		'resolver_cramer',
+		normalizeMatrix(coeficientes),
+		normalizeVector(resultados)
+	);
+};

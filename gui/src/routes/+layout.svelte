@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/linsolve-logo.png';
 	import SideBar from '$lib/components/SideBar.svelte';
 	import { SideBarWidth } from '$lib/components/SideBar';
 

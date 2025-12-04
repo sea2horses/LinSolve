@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Icon from '@iconify/svelte';
 	import { SidebarItems } from './SideBar';
 	import SideBarItem from './SideBarItem.svelte';
+	import logo from '$lib/assets/linsolve-logo.png';
 </script>
 
 <div id="sidebar" class="flex h-screen flex-col justify-between border-r border-base-300">
 	<div id="logo" class="flex-center gap-1 border-b border-base-300 p-3">
-		<Icon icon="mdi:math-integral-box" class="size-10" />
-		<p class="text-2xl font-bold">Linal</p>
+		<img src={logo} alt="LinSolve logo" class="h-10 w-10 rounded-lg object-contain" />
+		<p class="text-2xl font-bold">LinSolve</p>
 	</div>
 	<div id="options" class="overflow-y-auto">
 		<ul class="menu overflow-x-hidden overflow-y-auto">

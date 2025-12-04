@@ -34,8 +34,16 @@ def number_parse(n: Number) -> str:
 
 
 def sympy_expression(expr: sympy.Expr) -> str:
-    # Spaces for safety
     return " " + sympy.latex(expr) + " "  # type: ignore
+
+
+def number_decimal(expr: sympy.Expr | float, precision: int = 8) -> str:
+    try:
+        val = float(sympy.N(expr, precision))
+        formatted = f"{val:.{precision}f}".rstrip("0").rstrip(".")
+        return f" {formatted} "
+    except Exception:
+        return sympy_expression(sympy_expr(expr))
 
 
 def fraction(frac: Fraction, force_sign: bool = False) -> str:
@@ -80,13 +88,9 @@ def matrix(mat: Matriz) -> str:
 
 
 def vector(vec: Vector) -> str:
-    latex = "\\begin{bmatrix}"
-
-    for c in vec.componentes:
-        latex += sympy_expression(c) + "\\"
-
-    latex += "\\end{bmatrix}"
-    return latex
+    # Construye un vector columna separando con doble backslash correcto
+    body = " \\\\ ".join(sympy_expression(c) for c in vec.componentes)
+    return "\\begin{bmatrix}" + body + "\\end{bmatrix}"
 
 
 # Mapping per latex table

@@ -39,6 +39,11 @@ class AllowedCommands(Enum):
     cos = 9
     tan = 10
     e = 11
+    log = 12
+    ln = 13
+    sqrt = 14
+    exp = 15
+    det = 16
 
 
 command_map: dict[str, AllowedCommands] = {
@@ -52,7 +57,12 @@ command_map: dict[str, AllowedCommands] = {
     "sin": AllowedCommands.sin,
     "cos": AllowedCommands.cos,
     "tan": AllowedCommands.tan,
-    "e": AllowedCommands.e
+    "e": AllowedCommands.e,
+    "log": AllowedCommands.log,
+    "ln": AllowedCommands.ln,
+    "sqrt": AllowedCommands.sqrt,
+    "exp": AllowedCommands.exp,
+    "det": AllowedCommands.det
 }
 
 
@@ -205,6 +215,22 @@ class ICommandParser(ABC):
     def parsepi(self) -> AST:
         pass
 
+    @abstractmethod
+    def parselog(self) -> AST:
+        pass
+
+    @abstractmethod
+    def parseln(self) -> AST:
+        pass
+
+    @abstractmethod
+    def parsesqrt(self) -> AST:
+        pass
+
+    @abstractmethod
+    def parseexp(self) -> AST:
+        pass
+
 
 class NumberAST(AST):
     def __init__(self, value: sympy.Expr) -> None:
@@ -321,6 +347,45 @@ functions: dict[str, FunctionDef] = {
     "tan": FunctionDef(1, tanfunc)
 }
 
+# Funciones adicionales soportadas
+def logfunc(args: list[Operand]) -> Operand:
+    if not isinstance(args[0], sympy.Expr):
+        raise Exception(
+            f"La funcion no es valida para objeto de tipo {type(args[0])}")
+    return sympy.log(args[0])  # type: ignore
+
+
+def sqrtfunc(args: list[Operand]) -> Operand:
+    if not isinstance(args[0], sympy.Expr):
+        raise Exception(
+            f"La funcion no es valida para objeto de tipo {type(args[0])}")
+    return sympy.sqrt(args[0])  # type: ignore
+
+
+def expfunc(args: list[Operand]) -> Operand:
+    if not isinstance(args[0], sympy.Expr):
+        raise Exception(
+            f"La funcion no es valida para objeto de tipo {type(args[0])}")
+    return sympy.exp(args[0])  # type: ignore
+
+
+def detfunc(args: list[Operand]) -> Operand:
+    arg = args[0]
+    if isinstance(arg, matriz.Matriz):
+        return op.determinante_por_cofactores(arg)
+    if isinstance(arg, sympy.Expr):
+        return sympy.det(arg)  # type: ignore
+    raise Exception(f"La funcion det no es valida para objeto de tipo {type(arg)}")
+
+
+functions.update({
+    "log": FunctionDef(1, logfunc),
+    "ln": FunctionDef(1, logfunc),
+    "sqrt": FunctionDef(1, sqrtfunc),
+    "exp": FunctionDef(1, expfunc),
+    "det": FunctionDef(1, detfunc),
+})
+
 
 class FunctionAST(AST):
     def __init__(self, name: str, args: list[AST]):
@@ -409,6 +474,11 @@ class Parser(ICommandParser):
                 AllowedCommands.sin,
                 AllowedCommands.cos,
                 AllowedCommands.tan,
+                AllowedCommands.log,
+                AllowedCommands.ln,
+                AllowedCommands.sqrt,
+                AllowedCommands.exp,
+                AllowedCommands.det,
             )
 
         return False
@@ -455,6 +525,21 @@ class Parser(ICommandParser):
                 case AllowedCommands.tan:
                     self.eat_token(TokenType.COMMAND)
                     return self.parsetan()
+                case AllowedCommands.log:
+                    self.eat_token(TokenType.COMMAND)
+                    return self.parselog()
+                case AllowedCommands.ln:
+                    self.eat_token(TokenType.COMMAND)
+                    return self.parseln()
+                case AllowedCommands.sqrt:
+                    self.eat_token(TokenType.COMMAND)
+                    return self.parsesqrt()
+                case AllowedCommands.exp:
+                    self.eat_token(TokenType.COMMAND)
+                    return self.parseexp()
+                case AllowedCommands.det:
+                    self.eat_token(TokenType.COMMAND)
+                    return self.parsedet()
                 case _:
                     return None
 
@@ -562,6 +647,21 @@ class Parser(ICommandParser):
 
     def parsetan(self) -> AST:
         return FunctionAST("tan", [self.parse_operand()])
+
+    def parselog(self) -> AST:
+        return FunctionAST("log", [self.parse_operand()])
+
+    def parseln(self) -> AST:
+        return FunctionAST("ln", [self.parse_operand()])
+
+    def parsesqrt(self) -> AST:
+        return FunctionAST("sqrt", [self.parse_operand()])
+
+    def parseexp(self) -> AST:
+        return FunctionAST("exp", [self.parse_operand()])
+
+    def parsedet(self) -> AST:
+        return FunctionAST("det", [self.parse_operand()])
 
     def expr_to_postfix(self) -> list[AST | Operations]:
         opstack: list[Operations] = []
@@ -737,7 +837,8 @@ def eval_ast(node: AST, env: dict[str, Operand | None]) -> Operand:
         if node.id in env:
             val = env.get(node.id)
             if val is None:
-                raise Exception(f"Reserved keyword: {val}")
+                # Permit reserved markers like T/t/I
+                return sympy.Symbol(node.id)
             return val
         raise ValueError(f"Unknown variable '{node.id}' in expression")
 
@@ -774,7 +875,7 @@ def eval_ast(node: AST, env: dict[str, Operand | None]) -> Operand:
             if isinstance(node.rhs, VariableAST) and node.rhs.id in ("T", "t"):
                 return generic_transpose(left)
             # Pattern for inversion
-            if isinstance(node.rhs, NumberAST) and right == -1:
+            if (isinstance(node.rhs, NumberAST) and right == -1) or right == -1:
                 return generic_inversion(left)
             # Normal power
             return generic_power(left, right)

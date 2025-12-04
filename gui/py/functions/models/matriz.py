@@ -26,7 +26,7 @@ class Matriz:
 
         for i in range(0, filas):
             # Inicializamos cada una de las filas
-            self.matriz.append([])
+            self.matriz.append([]   )
             for _ in range(0, columnas):
                 # Inicializamos todo a 0
                 self.matriz[i].append(sympy_expr(0))
