@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
+	import MathLive from '$lib/components/MathLive.svelte';
 	import functionPlot from 'function-plot';
+	import { graficarFuncion } from '$lib/services/graficador';
 
-	let expr = 'sin(x)';
+	let expr = '\\sin(x)';
 	let xMin = '-6';
 	let xMax = '6';
 	let samples = 200;
@@ -14,7 +16,7 @@
 
 	const clampSamples = (val: number) => Math.min(400, Math.max(50, Math.round(val)));
 
-	const runPlot = () => {
+	const runPlot = async () => {
 		if (!graphEl) return;
 		loading = true;
 		error = null;
@@ -22,9 +24,10 @@
 		const n = clampSamples(Number(samples) || 200);
 		samples = n;
 		try {
+			const coords = await graficarFuncion(expr, xMin, xMax, n);
 			functionPlot({
 				target: graphEl,
-				width: 720,
+				width: 760,
 				height: 420,
 				grid: true,
 				disableZoom: false,
@@ -32,9 +35,8 @@
 				yAxis: { label: 'y' },
 				data: [
 					{
-						fn: expr,
-						sampler: 'builtIn',
-						nSamples: n,
+						points: coords.map((p) => [p.x, p.y]),
+						fnType: 'points',
 						graphType: 'polyline',
 						color: '#2563eb'
 					}
@@ -60,8 +62,8 @@
 	<title>Graficador de funciones | LinSolve</title>
 </svelte:head>
 
-<main class="min-h-screen w-full bg-base-100 px-6 py-8">
-	<section class="mx-auto max-w-5xl space-y-3">
+<main class="min-h-screen w-full bg-base-100 px-6 py-10">
+	<section class="mx-auto max-w-6xl space-y-3">
 		<p class="text-sm font-semibold uppercase tracking-wide text-primary">Visualizador</p>
 		<h1 class="text-4xl font-bold">Graficador de funciones</h1>
 		<p class="max-w-3xl text-base text-base-content/70">
@@ -79,8 +81,8 @@
 		</div>
 	</section>
 
-	<section class="mx-auto mt-6 grid max-w-5xl gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-		<div class="card-border card space-y-4 p-5 shadow-lg">
+	<section class="mx-auto mt-8 grid max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+		<div class="card-border card space-y-4 p-6 shadow-lg">
 			<header class="space-y-1">
 				<p class="text-sm font-semibold uppercase tracking-wide text-primary">Entrada</p>
 				<h2 class="text-2xl font-semibold">Configura la funcion</h2>
@@ -92,9 +94,9 @@
 			<label class="form-control w-full">
 				<div class="label">
 					<span class="label-text">f(x)</span>
-					<span class="label-text-alt text-xs text-base-content/60">Se envia directo a function-plot</span>
+					<span class="label-text-alt text-xs text-base-content/60">Editor MathLive (LaTeX)</span>
 				</div>
-				<input class="input input-bordered" type="text" bind:value={expr} />
+				<MathLive bind:value={expr} className="input input-bordered min-h-[52px]" />
 			</label>
 
 			<div class="grid gap-3 sm:grid-cols-2">
@@ -152,7 +154,7 @@
 			{/if}
 		</div>
 
-		<div class="card-border card space-y-4 p-5 shadow-lg">
+			<div class="card-border card space-y-4 p-6 shadow-lg">
 			<header class="flex items-center justify-between">
 				<div>
 					<p class="text-sm font-semibold uppercase tracking-wide text-secondary">Salida</p>
@@ -165,7 +167,7 @@
 			</header>
 
 			<div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
-				<div bind:this={graphEl} class="h-[360px] w-full"></div>
+				<div bind:this={graphEl} class="h-[380px] w-full"></div>
 			</div>
 		</div>
 	</section>

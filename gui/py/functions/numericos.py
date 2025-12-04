@@ -167,7 +167,13 @@ def biseccion(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 50)
         latex.text(f" {status}, iteraciones usadas="),
         f"{iter_used}/{max_iter}",
     )
-    return latex.LATEX_STDOUT.stdout
+    return {
+        "latex": latex.LATEX_STDOUT.stdout,
+        "raiz": float(c_val),
+        "f_raiz": float(f(c_val)),
+        "converge": converged,
+        "iteraciones": iter_used,
+    }
 
 
 def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 50) -> str:
@@ -259,7 +265,13 @@ def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 5
         latex.text(f" {status}, iteraciones usadas="),
         f"{iter_used}/{max_iter}",
     )
-    return latex.LATEX_STDOUT.stdout
+    return {
+        "latex": latex.LATEX_STDOUT.stdout,
+        "raiz": float(c_val),
+        "f_raiz": float(f(c_val)),
+        "converge": converged,
+        "iteraciones": iter_used,
+    }
 
 
 def _ensure_domain(f: Callable[[float], float], df: Callable[[float], float], xi: float, proposal: float) -> float:
@@ -369,7 +381,13 @@ def newton_raphson(funcion: str, x0: str, tolerancia: str, max_iter: int = 50) -
         latex.text(f" {status}, iteraciones usadas="),
         f"{iter_used}/{max_iter}",
     )
-    return latex.LATEX_STDOUT.stdout
+    return {
+        "latex": latex.LATEX_STDOUT.stdout,
+        "raiz": float(xi),
+        "f_raiz": float(f(xi)),
+        "converge": converged,
+        "iteraciones": iter_used,
+    }
 
 
 def secante(funcion: str, x0: str, x1: str, tolerancia: str, max_iter: int = 50) -> str:
@@ -454,4 +472,10 @@ def secante(funcion: str, x0: str, x1: str, tolerancia: str, max_iter: int = 50)
         latex.text(f" {status}, iteraciones usadas="),
         f"{iter_used}/{max_iter}",
     )
-    return latex.LATEX_STDOUT.stdout
+    return {
+        "latex": latex.LATEX_STDOUT.stdout,
+        "raiz": float(x_curr),
+        "f_raiz": float(f(x_curr)),
+        "converge": converged,
+        "iteraciones": iter_used,
+    }

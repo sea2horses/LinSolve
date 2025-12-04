@@ -6,8 +6,11 @@
 		metodoBiseccion,
 		metodoNewtonRaphson,
 		metodoReglaFalsa,
-		metodoSecante
+		metodoSecante,
+		type MetodoResultado
 	} from '$lib/services/numericos';
+	import { graficarFuncion } from '$lib/services/graficador';
+	import functionPlot from 'function-plot';
 
 	type MetodoKey = 'biseccion' | 'reglaFalsa' | 'newton' | 'secante';
 
@@ -47,8 +50,11 @@
 
 	let metodoActivo: MetodoKey = $state('biseccion');
 	let latexOutput: string | null = $state(null);
+	let raizAprox: number | null = $state(null);
+	let fRaiz: number | null = $state(null);
 	let errorMessage: string | null = $state(null);
 	let loading: boolean = $state(false);
+	let grafEl: HTMLDivElement | null = null;
 
 	let form = $state({
 		funcion: 'x^3 - x - 2',
@@ -65,12 +71,15 @@
 		loading = true;
 		errorMessage = null;
 		latexOutput = null;
+		raizAprox = null;
+		fRaiz = null;
 		const iteraciones = Math.max(1, Number(form.maxIter) || 0);
 
 		try {
+			let res: MetodoResultado | null = null;
 			switch (metodoActivo) {
 				case 'biseccion':
-					latexOutput = await metodoBiseccion(
+					res = await metodoBiseccion(
 						form.funcion,
 						form.a,
 						form.b,
@@ -79,7 +88,7 @@
 					);
 					break;
 				case 'reglaFalsa':
-					latexOutput = await metodoReglaFalsa(
+					res = await metodoReglaFalsa(
 						form.funcion,
 						form.a,
 						form.b,
@@ -88,7 +97,7 @@
 					);
 					break;
 				case 'newton':
-					latexOutput = await metodoNewtonRaphson(
+					res = await metodoNewtonRaphson(
 						form.funcion,
 						form.x0,
 						form.tolerancia,
@@ -96,7 +105,7 @@
 					);
 					break;
 				case 'secante':
-					latexOutput = await metodoSecante(
+					res = await metodoSecante(
 						form.funcion,
 						form.x0,
 						form.x1,
@@ -104,6 +113,12 @@
 						iteraciones
 					);
 					break;
+			}
+			if (res) {
+				latexOutput = res.latex;
+				raizAprox = Number.isFinite(res.raiz ?? NaN) ? res.raiz : null;
+				fRaiz = Number.isFinite(res.f_raiz ?? NaN) ? res.f_raiz : null;
+				await renderGrafica();
 			}
 		} catch (err) {
 			errorMessage = err instanceof Error ? err.message : 'No se pudo ejecutar el metodo.';
@@ -127,10 +142,79 @@
 			form.x1 = '2';
 		}
 	};
+
+	const domainGuess = (): [number, number] => {
+		const asNum = (v: string, fallback: number) => {
+			const n = Number(v);
+			return Number.isFinite(n) ? n : fallback;
+		};
+		const cands: number[] = [];
+		if (metodoActivo === 'biseccion' || metodoActivo === 'reglaFalsa') {
+			cands.push(asNum(form.a, -5), asNum(form.b, 5));
+		} else if (metodoActivo === 'secante') {
+			cands.push(asNum(form.x0, -5), asNum(form.x1, 5));
+		} else {
+			const x0 = asNum(form.x0, 0);
+			cands.push(x0 - 2, x0 + 2);
+		}
+		if (raizAprox !== null) {
+			cands.push(raizAprox);
+		}
+		// Asegura un rango base amplio
+		cands.push(-20, 20);
+
+		let xmin = Math.min(...cands);
+		let xmax = Math.max(...cands);
+		if (xmax <= xmin) {
+			xmin -= 1;
+			xmax += 1;
+		}
+		const span = xmax - xmin;
+		const pad = Math.max(span * 0.1, 1);
+		return [xmin - pad, xmax + pad];
+	};
+
+	const renderGrafica = async () => {
+		if (!grafEl) return;
+		grafEl.innerHTML = '';
+		try {
+			const [xmin, xmax] = domainGuess();
+			const coords = await graficarFuncion(form.funcion, `${xmin}`, `${xmax}`, 220);
+			functionPlot({
+				target: grafEl,
+				width: 760,
+				height: 420,
+				grid: true,
+				xAxis: { label: 'x', domain: [xmin, xmax] },
+				yAxis: { label: 'y' },
+				data: [
+					{
+						points: coords.map((p) => [p.x, p.y]),
+						fnType: 'points',
+						graphType: 'polyline',
+						color: '#2563eb'
+					},
+					...(raizAprox !== null && fRaiz !== null
+						? [
+								{
+									points: [[raizAprox, fRaiz]],
+									fnType: 'points',
+									graphType: 'scatter',
+									color: '#f97316',
+									attr: { r: 4 }
+								}
+							]
+						: [])
+				]
+			});
+		} catch (err) {
+			console.error('No se pudo graficar la funcion', err);
+		}
+	};
 </script>
 
 <main class="min-h-screen w-full bg-base-100 px-6 py-8">
-	<section class="mx-auto max-w-5xl space-y-2">
+	<section class="mx-auto max-w-6xl space-y-2">
 		<p class="text-sm font-semibold uppercase tracking-wide text-primary">Raices</p>
 		<h1 class="text-4xl font-bold">Métodos de raíces con LaTeX</h1>
 		<p class="text-base text-base-content/70">
@@ -146,7 +230,7 @@
 		</div>
 	</section>
 
-	<section class="mx-auto mt-6 max-w-5xl space-y-4">
+	<section class="mx-auto mt-6 max-w-6xl space-y-6">
 		<div class="flex flex-wrap gap-3">
 			{#each Object.entries(metodos) as [key, data]}
 				<button
@@ -248,6 +332,20 @@
 			</div>
 
 			<OutputBox bind:value={latexOutput} bind:error={errorMessage} className="w-full" />
+			<div class="card-border card space-y-3 p-4 shadow">
+				<header class="flex items-center justify-between">
+					<div>
+						<p class="text-xs font-semibold uppercase tracking-wide text-secondary">Grafica</p>
+						<h3 class="text-xl font-semibold">Funcion y raiz</h3>
+					</div>
+					{#if raizAprox !== null}
+						<span class="badge badge-soft badge-primary">x* = {raizAprox.toFixed(4)}</span>
+					{/if}
+				</header>
+				<div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
+					<div bind:this={grafEl} class="h-[360px] w-full"></div>
+				</div>
+			</div>
 		</div>
 	</section>
 </main>
