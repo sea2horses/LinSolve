@@ -94,10 +94,10 @@ def biseccion(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 50)
 
     if fa * fb > 0:
         raise ValueError(
-            f"f(a) y f(b) deben tener signos opuestos. f(a)={_format(fa)}, f(b)={_format(fb)}")
+            f"f(a) y f(b) deben tener signos opuestos. f(a) \\approx {_format(fa)}, f(b) \\approx {_format(fb)}")
 
     _line(latex.text("Intervalo inicial:"),
-          f"a={_format(a_val)}, b={_format(b_val)}")
+          f"a \\approx {_format(a_val)}, b \\approx {_format(b_val)}")
 
     c_val = a_val
     error = abs(b_val - a_val)
@@ -116,8 +116,8 @@ def biseccion(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 50)
 
         _line(
             latex.text(f"Iteracion {i}:"),
-            f" a={_format_decimal(a_val)}, b={_format_decimal(b_val)}, c={_format_decimal(c_val)}, ",
-            f"f(c)={_format_decimal(fc)}, error={_format_decimal(error)}",
+            f" a \\approx {_format_decimal(a_val)}, b \\approx {_format_decimal(b_val)}, c \\approx {_format_decimal(c_val)}, ",
+            f"f(c) \\approx {_format_decimal(fc)}, error \\approx {_format_decimal(error)}",
         )
 
         rows.append([
@@ -153,7 +153,7 @@ def biseccion(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 50)
 
     _table(["i", "xl", "xu", "xr", "Ea", "yl", "yu", "yr", "Ea"], rows)
     _line(latex.text("Raiz aproximada:"),
-          f" x={_format_decimal(c_val)}, |f(x)|={_format_decimal(f(c_val))}")
+          f" x \\approx {_format_decimal(c_val)}, |f(x)| \\approx {_format_decimal(f(c_val))}")
     _line(
         latex.text("Criterio de paro:"),
         latex.text(" tolerancia="),
@@ -186,10 +186,10 @@ def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 5
 
     if fa * fb > 0:
         raise ValueError(
-            f"f(a) y f(b) deben tener signos opuestos. f(a)={_format(fa)}, f(b)={_format(fb)}")
+            f"f(a) y f(b) deben tener signos opuestos. f(a) \\approx {_format(fa)}, f(b) \\approx {_format(fb)}")
 
     _line(latex.text("Intervalo inicial:"),
-          f" a={_format(a_val)}, b={_format(b_val)}")
+          f" a \\approx {_format(a_val)}, b \\approx {_format(b_val)}")
 
     c_val = a_val
     error = abs(b_val - a_val)
@@ -208,8 +208,8 @@ def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 5
 
         _line(
             latex.text(f"Iteracion {i}:"),
-            f" a={_format_decimal(a_val)}, b={_format_decimal(b_val)}, xr={_format_decimal(c_val)}, ",
-            f"f(xr)={_format_decimal(fc)}, error={_format_decimal(error)}",
+            f" a \\approx {_format_decimal(a_val)}, b \\approx {_format_decimal(b_val)}, xr \\approx {_format_decimal(c_val)}, ",
+            f"f(xr) \\approx {_format_decimal(fc)}, error \\approx {_format_decimal(error)}",
         )
 
         rows.append([
@@ -245,12 +245,12 @@ def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 5
 
     _table(["i", "xl", "xu", "xr", "Ea", "vl", "vu", "vr", "Ea"], rows)
     _line(latex.text("Raiz aproximada:"),
-          f" x={_format_decimal(c_val)}, |f(x)|={_format_decimal(f(c_val))}")
+          f" x \\approx {_format_decimal(c_val)}, |f(x)| \\approx {_format_decimal(f(c_val))}")
     _line(
         latex.text("Criterio de paro:"),
-        latex.text(" tolerancia="),
+        latex.text(" tolerancia \\approx "),
         _format_decimal(tol),
-        latex.text(", error="),
+        latex.text(", error \\approx "),
         _format_decimal(error),
     )
     status = "si" if converged else "no"
@@ -326,8 +326,8 @@ def newton_raphson(funcion: str, x0: str, tolerancia: str, max_iter: int = 50) -
 
         _line(
             latex.text(f"Iteracion {i}:"),
-            f" xi={_format_decimal(xi)}, f(xi)={_format_decimal(fxi)}, f'(xi)={_format_decimal(dfxi)}, ",
-            f"x_{i+1}={_format_decimal(x_next)}, error={_format_decimal(error)}",
+            f" xi \\approx {_format_decimal(xi)}, f(xi) \\approx {_format_decimal(fxi)}, f'(xi) \\approx {_format_decimal(dfxi)}, ",
+            f"x_{i+1} \\approx {_format_decimal(x_next)}, error \\approx {_format_decimal(error)}",
         )
         rows.append([
             str(i),
@@ -355,12 +355,12 @@ def newton_raphson(funcion: str, x0: str, tolerancia: str, max_iter: int = 50) -
 
     _table(["i", "x_i", "x_{i+1}", "Ea", "f(x_i)", "f'(x_i)"], rows)
     _line(latex.text("Raiz aproximada:"),
-          f" x={_format_decimal(xi)}, |f(x)|={_format_decimal(f(xi))}")
+          f" x \\approx {_format_decimal(xi)}, |f(x)| \\approx {_format_decimal(f(xi))}")
     _line(
         latex.text("Criterio de paro:"),
-        latex.text(" tolerancia="),
+        latex.text(" tolerancia \\approx "),
         _format_decimal(tol),
-        latex.text(", error="),
+        latex.text(", error \\approx "),
         _format_decimal(error),
     )
     status = "si" if converged else "no"
@@ -387,7 +387,7 @@ def secante(funcion: str, x0: str, x1: str, tolerancia: str, max_iter: int = 50)
     f_curr = f(x_curr)
 
     _line(latex.text("Semilla inicial:"),
-          f" x0={_format_decimal(x_prev)}, x1={_format_decimal(x_curr)}")
+          f" x0 \\approx {_format_decimal(x_prev)}, x1 \\approx {_format_decimal(x_curr)}")
 
     error = abs(x_curr - x_prev)
     rows: list[list[str]] = []
@@ -407,9 +407,9 @@ def secante(funcion: str, x0: str, x1: str, tolerancia: str, max_iter: int = 50)
 
         _line(
             latex.text(f"Iteracion {i}:"),
-            f" x_{i-1}={_format_decimal(x_prev)}, x_{i}={_format_decimal(x_curr)}, ",
-            f"f(x_{i-1})={_format_decimal(f_prev)}, f(x_{i})={_format_decimal(f_curr)}, ",
-            f"x_{i+1}={_format_decimal(x_next)}, error={_format_decimal(error)}",
+            f" x_{i-1} \\approx {_format_decimal(x_prev)}, x_{i} \\approx {_format_decimal(x_curr)}, ",
+            f"f(x_{i-1}) \\approx {_format_decimal(f_prev)}, f(x_{i}) \\approx {_format_decimal(f_curr)}, ",
+            f"x_{i+1} \\approx {_format_decimal(x_next)}, error \\approx {_format_decimal(error)}",
         )
         rows.append([
             str(i),
@@ -440,12 +440,12 @@ def secante(funcion: str, x0: str, x1: str, tolerancia: str, max_iter: int = 50)
 
     _table(["i", "x_{i-1}", "x_i", "f(x_{i-1})", "f(x_i)", "x_{i+1}", "Ea"], rows)
     _line(latex.text("Raiz aproximada:"),
-          f" x={_format_decimal(x_curr)}, |f(x)|={_format_decimal(f(x_curr))}")
+          f" x \\approx {_format_decimal(x_curr)}, |f(x)| \\approx {_format_decimal(f(x_curr))}")
     _line(
         latex.text("Criterio de paro:"),
-        latex.text(" tolerancia="),
+        latex.text(" tolerancia \\approx "),
         _format_decimal(tol),
-        latex.text(", error="),
+        latex.text(", error \\approx "),
         _format_decimal(error),
     )
     status = "si" if converged else "no"

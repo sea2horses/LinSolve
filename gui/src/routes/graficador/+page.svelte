@@ -1,73 +1,59 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
-	import MathLive from '$lib/components/MathLive.svelte';
-	import { graficarFuncion, type Punto } from '$lib/services/graficador';
+	import functionPlot from 'function-plot';
 
-	let expr = '\\sin(x)';
-	let xMin = '-6.28';
-	let xMax = '6.28';
-	let pasos = 180;
+	let expr = 'sin(x)';
+	let xMin = '-6';
+	let xMax = '6';
+	let samples = 200;
 
-	let puntos: Punto[] = [];
 	let error: string | null = null;
 	let loading = false;
+	let graphEl: HTMLDivElement;
 
-	const width = 680;
-	const height = 360;
-	const padding = 36;
+	const clampSamples = (val: number) => Math.min(400, Math.max(50, Math.round(val)));
 
-	const resetEjemplo = () => {
-		expr = '\\sin(x)';
-		xMin = '-6.28';
-		xMax = '6.28';
-		pasos = 180;
-	};
-
-	const runPlot = async () => {
-		if (loading) return;
-		error = null;
+	const runPlot = () => {
+		if (!graphEl) return;
 		loading = true;
-		const sampleCount = Math.min(400, Math.max(50, Number(pasos) || 50));
-		pasos = sampleCount;
+		error = null;
+		graphEl.innerHTML = '';
+		const n = clampSamples(Number(samples) || 200);
+		samples = n;
 		try {
-			puntos = await graficarFuncion(expr, xMin, xMax, sampleCount);
-		} catch (err) {
-			puntos = [];
-			error = err instanceof Error ? err.message : 'No se pudo graficar.';
-		} finally {
-			loading = false;
+			functionPlot({
+				target: graphEl,
+				width: 720,
+				height: 420,
+				grid: true,
+				disableZoom: false,
+				xAxis: { label: 'x', domain: [Number(xMin), Number(xMax)] },
+				yAxis: { label: 'y' },
+				data: [
+					{
+						fn: expr,
+						sampler: 'builtIn',
+						nSamples: n,
+						graphType: 'polyline',
+						color: '#2563eb'
+					}
+				]
+			});
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'No se pudo graficar.';
 		}
+		loading = false;
 	};
 
 	onMount(runPlot);
 
-	const xRange = () => {
-		if (!puntos.length) return Number(xMax) - Number(xMin) || 1;
-		return Math.max(1e-6, Math.max(...puntos.map((p) => p.x)) - Math.min(...puntos.map((p) => p.x)));
+	const setEjemplo = (fn: string, min: string, max: string) => {
+		expr = fn;
+		xMin = min;
+		xMax = max;
+		runPlot();
 	};
-
-	const xStart = () => (puntos.length ? Math.min(...puntos.map((p) => p.x)) : Number(xMin));
-	const xEnd = () => (puntos.length ? Math.max(...puntos.map((p) => p.x)) : Number(xMax));
-
-	const yMinVal = () => (puntos.length ? Math.min(...puntos.map((p) => p.y)) : -1);
-	const yMaxVal = () => (puntos.length ? Math.max(...puntos.map((p) => p.y)) : 1);
-	const yRange = () => Math.max(1e-6, yMaxVal() - yMinVal());
-
-	const scaleX = (val: number) =>
-		padding + ((val - xStart()) / xRange()) * (width - padding * 2);
-	const scaleY = (val: number) =>
-		height - padding - ((val - yMinVal()) / yRange()) * (height - padding * 2);
-
-	const pathData = () => {
-		if (!puntos.length) return '';
-		return puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(p.x)} ${scaleY(p.y)}`).join(' ');
-	};
-
-	const xAxisY = () =>
-		yMinVal() <= 0 && yMaxVal() >= 0 ? scaleY(0) : null;
-	const yAxisX = () =>
-		xStart() <= 0 && xEnd() >= 0 ? scaleX(0) : null;
 </script>
 
 <svelte:head>
@@ -79,15 +65,14 @@
 		<p class="text-sm font-semibold uppercase tracking-wide text-primary">Visualizador</p>
 		<h1 class="text-4xl font-bold">Graficador de funciones</h1>
 		<p class="max-w-3xl text-base text-base-content/70">
-			Ingresa f(x) en LaTeX, define el rango y genera la curva en tiempo real. Ideal para revisar
-			comportamiento de polinomios, trigonometricas o funciones con restricciones de dominio.
+			Escribe f(x), define el rango y usa function-plot (npm) para dibujarla en el cliente.
 		</p>
 		<div class="flex flex-wrap gap-2 pt-2">
-			<button class="btn btn-soft btn-sm" type="button" on:click={resetEjemplo}>
+			<button class="btn btn-soft btn-sm" type="button" on:click={() => setEjemplo('sin(x)', '-6', '6')}>
 				<Icon icon="tabler:wand" class="size-4" />
 				Usar ejemplo sin(x)
 			</button>
-			<button class="btn btn-ghost btn-sm" type="button" on:click={() => { expr = '\\ln(x)'; xMin = '0.2'; xMax = '8'; }}>
+			<button class="btn btn-ghost btn-sm" type="button" on:click={() => setEjemplo('ln(x)', '0.2', '8')}>
 				<Icon icon="tabler:math" class="size-4" />
 				ln(x) con dominio positivo
 			</button>
@@ -100,16 +85,16 @@
 				<p class="text-sm font-semibold uppercase tracking-wide text-primary">Entrada</p>
 				<h2 class="text-2xl font-semibold">Configura la funcion</h2>
 				<p class="text-sm text-base-content/70">
-					La expresion debe depender de x. Puedes usar \\sin, \\cos, \\ln, potencias y fracciones.
+					Sintaxis tipo mathjs: sin(x), cos(x), exp(x), ln(x), (x^2-4)/x, etc.
 				</p>
 			</header>
 
 			<label class="form-control w-full">
 				<div class="label">
 					<span class="label-text">f(x)</span>
-					<span class="label-text-alt text-xs text-base-content/60">Editor LaTeX</span>
+					<span class="label-text-alt text-xs text-base-content/60">Se envia directo a function-plot</span>
 				</div>
-				<MathLive bind:value={expr} className="input input-bordered min-h-[52px]" />
+				<input class="input input-bordered" type="text" bind:value={expr} />
 			</label>
 
 			<div class="grid gap-3 sm:grid-cols-2">
@@ -129,7 +114,7 @@
 
 			<label class="form-control w-full">
 				<div class="label">
-					<span class="label-text">Resolucion ({pasos} puntos)</span>
+					<span class="label-text">Resolucion ({samples} puntos)</span>
 					<span class="label-text-alt text-xs text-base-content/60">Entre 50 y 400</span>
 				</div>
 				<input
@@ -137,18 +122,17 @@
 					min="50"
 					max="400"
 					step="10"
-					value={pasos}
-					on:input={(event) =>
-						(pasos = Number((event.currentTarget as HTMLInputElement).value))}
+					bind:value={samples}
 					class="range range-primary"
+					on:change={runPlot}
 				/>
 			</label>
 
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<div class="flex flex-wrap gap-2 text-xs text-base-content/70">
-					<span class="badge badge-outline">Salta puntos fuera del dominio</span>
-					<span class="badge badge-outline">Escala automatica</span>
-					<span class="badge badge-outline">Devuelve datos crudos y SVG</span>
+					<span class="badge badge-outline">Cliente puro</span>
+					<span class="badge badge-outline">Zoom y pan habilitados</span>
+					<span class="badge badge-outline">Muestra errores de parseo</span>
 				</div>
 				<button class="btn btn-primary min-w-36 justify-center" type="button" on:click={runPlot}>
 					{#if loading}
@@ -175,85 +159,13 @@
 					<h2 class="text-2xl font-semibold">Grafica</h2>
 				</div>
 				<div class="flex gap-2 text-xs">
-					<span class="badge badge-soft badge-primary">x: {xStart().toFixed(2)} .. {xEnd().toFixed(2)}</span>
-					<span class="badge badge-soft badge-secondary">y: {yMinVal().toFixed(2)} .. {yMaxVal().toFixed(2)}</span>
+					<span class="badge badge-soft badge-primary">Usa rueda para zoom</span>
+					<span class="badge badge-soft badge-secondary">Arrastra para mover</span>
 				</div>
 			</header>
 
 			<div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
-				<svg viewBox={`0 0 ${width} ${height}`} class="h-[320px] w-full">
-					<defs>
-						<linearGradient id="graphLine" x1="0" x2="1" y1="0" y2="0">
-							<stop offset="0%" stop-color="hsl(var(--p))" stop-opacity="0.1" />
-							<stop offset="100%" stop-color="hsl(var(--p))" stop-opacity="0.4" />
-						</linearGradient>
-					</defs>
-					<rect
-						x="0"
-						y="0"
-						width={width}
-						height={height}
-						fill="url(#graphLine)"
-						opacity="0.08"
-						rx="18"
-					/>
-					{#if xAxisY() !== null}
-						<line
-							x1={padding}
-							y1={xAxisY() ?? 0}
-							x2={width - padding}
-							y2={xAxisY() ?? 0}
-							stroke="currentColor"
-							class="stroke-base-300"
-							stroke-width="1"
-							stroke-dasharray="4 4"
-						/>
-					{/if}
-					{#if yAxisX() !== null}
-						<line
-							x1={yAxisX() ?? 0}
-							y1={padding}
-							x2={yAxisX() ?? 0}
-							y2={height - padding}
-							stroke="currentColor"
-							class="stroke-base-300"
-							stroke-width="1"
-							stroke-dasharray="4 4"
-						/>
-					{/if}
-					{#if puntos.length}
-						<path
-							d={pathData()}
-							fill="none"
-							stroke="hsl(var(--p))"
-							stroke-width="2.5"
-							stroke-linecap="round"
-						/>
-					{:else}
-						<text
-							x="50%"
-							y="50%"
-							text-anchor="middle"
-							fill="currentColor"
-							class="fill-base-content/50 text-sm"
-						>
-							Sin datos. Ingresa una funcion y rango validos.
-						</text>
-					{/if}
-				</svg>
-			</div>
-
-			<div class="grid gap-2 sm:grid-cols-2">
-				<div class="stat bg-base-200/50">
-					<div class="stat-title text-xs">Minimo y maximo (y)</div>
-					<div class="stat-value text-xl">{yMinVal().toFixed(3)} / {yMaxVal().toFixed(3)}</div>
-					<div class="stat-desc text-xs">Escala auto segun puntos validos</div>
-				</div>
-				<div class="stat bg-base-200/50">
-					<div class="stat-title text-xs">Puntos graficados</div>
-					<div class="stat-value text-xl">{puntos.length}</div>
-					<div class="stat-desc text-xs">Se omiten valores fuera del dominio</div>
-				</div>
+				<div bind:this={graphEl} class="h-[360px] w-full"></div>
 			</div>
 		</div>
 	</section>

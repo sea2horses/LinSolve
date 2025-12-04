@@ -11,21 +11,7 @@ from .operations import operaciones as op
 
 import json
 import re
-import math
 from typing import Any, Dict, Union
-
-
-def _to_float_scalar(raw: str) -> float:
-    """
-    Convierte texto o LaTeX a float tolerando expresiones.
-    """
-    try:
-        val = parser.eval_latex(raw, parser.reserved_env)
-        if isinstance(val, sympy.Expr):
-            return float(sympy.N(val))
-        return float(val)
-    except Exception:
-        return float(sympy.N(sympy_expr(raw)))
 
 
 def resolver_sistema_por_gauss_jordan(mat: list[list[str]], ecuaciones: int, incognitas: int) -> str:
@@ -197,53 +183,6 @@ def comparar_expresiones(expr1: str, expr2: str, varjson: str | None = None) -> 
     latex.LATEX_STDOUT.writelatex(latex.text(f"Comparando: {expr1} =? {expr2}") + latex.newline())
     latex.LATEX_STDOUT.writelatex(latex.text(f"Resultado: {'iguales' if iguales else 'diferentes'}") + latex.newline())
     return latex.LATEX_STDOUT.stdout
-
-
-def graficar_funcion(expr: str, x_min: str, x_max: str, puntos: int = 200) -> list[list[float]]:
-    """
-    Devuelve pares (x, y) evaluados de f(x) en un rango lineal.
-    Ignora los puntos fuera de dominio y valida rangos.
-    """
-    if puntos < 2:
-        raise ValueError("Se necesitan al menos 2 puntos para graficar.")
-
-    x = sympy.symbols("x")
-    env = parser.reserved_env.copy()
-    env["x"] = x
-
-    parsed = parser.eval_latex(expr, env)
-    if not isinstance(parsed, sympy.Expr):
-        raise ValueError("La funcion debe depender de x.")
-
-    f = sympy.lambdify(x, parsed, "math")
-
-    xmin = _to_float_scalar(x_min)
-    xmax = _to_float_scalar(x_max)
-
-    if xmin >= xmax:
-        raise ValueError("x_min debe ser menor que x_max.")
-
-    step = (xmax - xmin) / (puntos - 1)
-    coords: list[list[float]] = []
-
-    for i in range(puntos):
-        xv = xmin + step * i
-        try:
-            yv = f(xv)
-            if isinstance(yv, sympy.Expr):
-                yv = float(sympy.N(yv))
-            y_val = float(yv)
-            if not math.isfinite(y_val):
-                continue
-        except Exception:
-            # Ignorar puntos fuera del dominio
-            continue
-        coords.append([float(xv), y_val])
-
-    if not coords:
-        raise ValueError("No se pudo evaluar la funcion en el rango dado.")
-
-    return coords
 
 
 # ---------- Wrappers expuestos a Eel para matrices y vectores ----------

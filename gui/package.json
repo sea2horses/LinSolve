@@ -47,6 +47,7 @@
 	},
 	"dependencies": {
 		"flyonui": "^2.4.1",
-		"katex": "^0.16.25"
+		"katex": "^0.16.25",
+		"function-plot": "^1.23.1"
 	}
 }
