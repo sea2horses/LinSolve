@@ -11,6 +11,7 @@ export const SidebarItems: (MenuItem | Category)[] = [
             { name: 'Raices de ecuaciones', href: '/metodos-numericos', icon: 'mdi:chart-bell-curve' }
         ]
     },
+    { name: 'Graficador', href: '/graficador', icon: 'tabler:chart-line' },
     {
         name: 'Matrices',
         items: [

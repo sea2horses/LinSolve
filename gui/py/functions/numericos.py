@@ -262,6 +262,26 @@ def regla_falsa(funcion: str, a: str, b: str, tolerancia: str, max_iter: int = 5
     return latex.LATEX_STDOUT.stdout
 
 
+def _ensure_domain(f: Callable[[float], float], df: Callable[[float], float], xi: float, proposal: float) -> float:
+    """
+    Intenta que el siguiente punto permanezca en el dominio.
+    Si f o f' fallan en el candidato, se aplica un amortiguamiento
+    hacia el valor actual hasta 10 veces.
+    """
+    x_next = proposal
+    for _ in range(10):
+        try:
+            f(x_next)
+            df(x_next)
+            return x_next
+        except ValueError:
+            x_next = (x_next + xi) / 2
+    raise ValueError(
+        f"La funcion no es evaluable en el siguiente valor calculado (x={_format_decimal(proposal)}). "
+        "El metodo salto fuera del dominio; intenta una semilla mas cercana a la raiz."
+    )
+
+
 def newton_raphson(funcion: str, x0: str, tolerancia: str, max_iter: int = 50) -> str:
     expr, f = _parse_function(funcion)
     x = sympy.symbols("x")
@@ -281,12 +301,23 @@ def newton_raphson(funcion: str, x0: str, tolerancia: str, max_iter: int = 50) -
     iter_used = 0
 
     for i in range(1, max_iter + 1):
-        fxi = f(xi)
-        dfxi = df(xi)
+        try:
+            fxi = f(xi)
+        except ValueError as exc:
+            raise ValueError(
+                f"No se pudo evaluar f(x) en x={_format_decimal(xi)}: {exc}")
+
+        try:
+            dfxi = df(xi)
+        except ValueError as exc:
+            raise ValueError(
+                f"No se pudo evaluar f'(x) en x={_format_decimal(xi)}: {exc}")
+
         if dfxi == 0:
             raise ValueError("La derivada es 0; no se puede continuar.")
 
         x_next = xi - fxi / dfxi
+        x_next = _ensure_domain(f, df, xi, x_next)
         error = abs(x_next - xi)
 
         ea = "-"
