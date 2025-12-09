@@ -21,6 +21,12 @@
 			href: '/matrices'
 		},
 		{
+			title: 'Matriz inversa',
+			description: 'Obtiene A^-1 con adjunta o Gauss-Jordan y pasos en LaTeX.',
+			icon: 'tabler:rotate-360',
+			href: '/inversa'
+		},
+		{
 			title: 'Vectores',
 			description: 'Opera vectores, combina y evalua dependencia lineal.',
 			icon: 'mdi:vector-line',
@@ -35,12 +41,13 @@
 	];
 
 	const quickLinks = [
-		{ label: 'Matrices basicas', href: '/matrices#operaciones' },
-		{ label: 'Producto matriz vector', href: '/vectores#matriz-vector' },
-		{ label: 'Combinacion lineal', href: '/vectores#combinacion' },
-		{ label: 'Metodos numericos', href: '/metodos-numericos' },
-		{ label: 'Configurar tema', href: '/configuracion' }
-	];
+	{ label: 'Matrices basicas', href: '/matrices#operaciones' },
+	{ label: 'Producto matriz vector', href: '/vectores#matriz-vector' },
+	{ label: 'Matriz inversa', href: '/inversa' },
+	{ label: 'Combinacion lineal', href: '/vectores#combinacion' },
+	{ label: 'Metodos numericos', href: '/metodos-numericos' },
+	{ label: 'Configurar tema', href: '/configuracion' }
+];
 </script>
 
 <svelte:head>

@@ -386,3 +386,24 @@ def resolver_cramer(coeffs: list[list[str]], results: list[str]) -> str:
     for idx, val in enumerate(soluciones, start=1):
         latex.LATEX_STDOUT.writelatex(latex.text(f"x_{idx} = ") + latex.number_parse(val) + latex.newline())
     return latex.LATEX_STDOUT.stdout
+
+def inversa_por_adjunta(m1: list[list[str]]) -> str:
+    """
+    Calcula la inversa usando el metodo de la adjunta.
+    """
+    latex.LATEX_STDOUT.clear()
+    mat = input.matrix_make(m1)
+    inv = op.inversion_por_adjunta(mat)
+    latex.LATEX_STDOUT.writelatex(latex.matrix(inv))
+    return latex.LATEX_STDOUT.stdout
+
+
+def inversa_por_gauss_jordan(m1: list[list[str]]) -> str:
+    """
+    Calcula la inversa por Gauss-Jordan con identidad aumentada.
+    """
+    latex.LATEX_STDOUT.clear()
+    mat = input.matrix_make(m1)
+    fn.calcular_inversa(mat, mat.filas)
+    return latex.LATEX_STDOUT.stdout
+

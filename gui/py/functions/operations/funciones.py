@@ -367,7 +367,7 @@ def calcular_inversa(mat: Matriz, tamaño: int) -> None:
                latex.newline(), latex.matrix(inversa), latex.newline())
 
         funnel(latex.newline(), latex.text(
-            "Verificación (A · A⁻¹):"), latex.newline())
+            "Verificación (A * A⁻¹):"), latex.newline())
         verificacion = op.multiplicar_matrices(mat, inversa)
         funnel(latex.matrix(verificacion), latex.newline())
     else:

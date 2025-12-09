@@ -49,6 +49,14 @@ export const determinanteSarrus = async (m: MatrixSpec): Promise<string> => {
 	return callPyFunc('determinante_sarrus', normalizeMatrix(m));
 };
 
+export const inversaAdjunta = async (m: MatrixSpec): Promise<string> => {
+	return callPyFunc('inversa_por_adjunta', normalizeMatrix(m));
+};
+
+export const inversaGaussJordan = async (m: MatrixSpec): Promise<string> => {
+	return callPyFunc('inversa_por_gauss_jordan', normalizeMatrix(m));
+};
+
 export const sumarVectores = async (a: VectorSpec, b: VectorSpec): Promise<string> => {
 	return callPyFunc('sumar_vectores', normalizeVector(a), normalizeVector(b));
 };

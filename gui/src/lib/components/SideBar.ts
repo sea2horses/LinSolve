@@ -24,7 +24,8 @@ export const SidebarItems: (MenuItem | Category)[] = [
                     { name: 'Cofactores', href: '/matrices#det-cof', icon: 'mdi:multiply' },
                     { name: 'Sarrus', href: '/matrices#det-sarrus', icon: 'mdi:multiply' }
                 ]
-            }
+            },
+            { name: 'Inversa', href: '/inversa', icon: 'tabler:rotate-360' }
         ]
     },
     {
