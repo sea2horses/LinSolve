@@ -1,4 +1,7 @@
 __pycache__
+_pyi_build
+build
+dist
 .vscode
 .venv
 *.pyc
