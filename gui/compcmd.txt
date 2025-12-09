@@ -1,0 +1,1 @@
+python -m eel eelApp.py build -y --onefile --workpath _pyi_build --distpath dist --icon="linsolve-logo.ico" --name="LinSolve" --noconsole
